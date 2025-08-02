@@ -2,21 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SmartGrocer Prototype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SmartGrocer App</title>
     <style>
-        /* --- Core App Styles (Inspired by Material Design) --- */
+        /* --- Core App Styles (Material Design Inspired) --- */
         :root {
-            --primary-color: #6200EE;
-            --primary-variant-color: #3700B3;
-            --secondary-color: #03DAC6;
-            --background-color: #F5F5F5;
-            --surface-color: #FFFFFF;
+            --primary-color: #4A90E2;      /* A modern, friendly blue */
+            --secondary-color: #50E3C2;   /* A vibrant mint green for actions */
+            --background-color: #F4F6F8;  /* A light, clean grey */
+            --surface-color: #FFFFFF;     /* For cards and surfaces */
             --on-primary-color: #FFFFFF;
-            --on-surface-color: #212121;
-            --on-surface-variant-color: #757575;
-            --error-color: #B00020;
-            --ad-background-color: #2E2E2E;
+            --on-surface-color: #333333;
+            --on-surface-variant-color: #888888;
+            --error-color: #D0021B;
+            --ad-background-color: #1A1A1A;
         }
 
         body {
@@ -27,31 +26,38 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden; /* Prevent scrolling of the whole body */
+            overflow: hidden;
         }
 
-        /* --- App Header --- */
+        /* --- App Structure --- */
         .app-header {
             background-color: var(--primary-color);
             color: var(--on-primary-color);
             padding: 16px;
-            text-align: center;
             font-size: 1.25em;
             font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            flex-shrink: 0;
         }
 
-        /* --- Main Content & Grocery List --- */
         .main-content {
             flex-grow: 1;
-            overflow-y: auto; /* Allow only this section to scroll */
+            overflow-y: auto;
             padding: 8px 0;
         }
 
+        .app-footer {
+            background-color: var(--background-color);
+            padding: 8px;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+        }
+
+        /* --- Grocery List Item Styling --- */
         .empty-state {
             text-align: center;
-            margin-top: 50px;
+            padding: 60px 20px;
             color: var(--on-surface-variant-color);
             font-size: 1.1em;
             line-height: 1.5;
@@ -59,61 +65,47 @@
 
         .grocery-item {
             background-color: var(--surface-color);
-            border-radius: 8px;
-            margin: 8px 12px;
-            padding: 12px 8px;
+            border-radius: 12px;
+            margin: 8px 16px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .grocery-item:active {
+            transform: scale(0.98);
         }
 
-        .item-details {
-            flex-grow: 1;
-            padding: 0 12px;
-        }
-        .item-details .name {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .item-details .price {
-            font-size: 0.9em;
-            color: var(--on-surface-variant-color);
-        }
+        .item-details { flex-grow: 1; padding: 0 12px; }
+        .item-details .name { font-weight: bold; }
+        .item-details .price { font-size: 0.9em; color: var(--on-surface-variant-color); }
 
-        .item-controls {
-            display: flex;
-            align-items: center;
-        }
-        .item-controls .quantity {
-            padding: 0 12px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .item-subtotal {
-            font-weight: 500;
-            width: 70px;
-            text-align: right;
-            padding: 0 8px;
-        }
+        .item-controls { display: flex; align-items: center; }
+        .item-controls .quantity { padding: 0 14px; font-weight: bold; font-size: 1.1em; }
+        .item-subtotal { font-weight: 500; width: 70px; text-align: right; padding-right: 8px; }
         
         .control-button, .delete-button {
-            border: none;
+            border: 1px solid #ddd;
             background-color: transparent;
+            color: var(--primary-color);
             cursor: pointer;
-            padding: 8px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
+            font-size: 18px;
+            line-height: 1;
+            transition: background-color 0.2s;
         }
+        .control-button:active { background-color: #e0e0e0; }
+
         .delete-button {
+            border: none;
             color: var(--error-color);
+            font-size: 24px;
         }
-
-        /* --- Total & Footer --- */
-        .app-footer {
-            background-color: var(--background-color);
-            padding: 8px;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        }
-
+        
+        /* --- Total & Ad Banner --- */
         .total-card {
             background-color: var(--surface-color);
             border-radius: 12px;
@@ -125,9 +117,15 @@
             font-size: 1.2em;
             font-weight: bold;
         }
-        .total-card .total-amount {
-            color: var(--primary-variant-color);
-            font-size: 1.25em;
+        .total-card .total-amount { color: var(--primary-color); font-size: 1.25em; }
+
+        .ad-banner {
+            background-color: var(--ad-background-color);
+            color: #FFFFFF;
+            text-align: center;
+            padding: 16px 8px;
+            font-size: 0.9em;
+            line-height: 1.3;
         }
 
         /* --- Floating Action Button (FAB) --- */
@@ -135,49 +133,78 @@
             position: fixed;
             bottom: 100px; /* Adjust based on ad height */
             right: 20px;
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             background-color: var(--secondary-color);
             border-radius: 50%;
             border: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--on-surface-color);
             cursor: pointer;
-            font-size: 24px;
+            font-size: 28px;
+            font-weight: 300;
+            transition: transform 0.2s;
         }
+        .fab:active { transform: scale(0.95); }
 
-        /* --- AdMob Banner Simulation --- */
-        .ad-banner {
-            background-color: var(--ad-background-color);
-            color: #FFFFFF;
-            text-align: center;
-            padding: 16px;
-            font-size: 0.9em;
-            width: 100%;
-            box-sizing: border-box; /* Ensures padding is included in width */
+        /* --- Add Item Modal --- */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none; /* Initially hidden */
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
         }
+        .modal-content {
+            background-color: var(--surface-color);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: calc(100% - 40px);
+            max-width: 320px;
+        }
+        .modal-content h3 { margin-top: 0; }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        #modal-save-btn { background-color: var(--primary-color); color: var(--on-primary-color); }
+        #modal-cancel-btn { background-color: #eee; }
     </style>
 </head>
 <body>
 
-    <header class="app-header">
-        SmartGrocer
-    </header>
+    <header class="app-header">SmartGrocer</header>
 
     <main class="main-content" id="grocery-list-container">
-        <p class="empty-state" id="empty-state-message">
-            Your cart is empty.<br>Click the scan button to add items.
-        </p>
-        <!-- Grocery items will be added here by JavaScript -->
+        <p class="empty-state" id="empty-state-message">Your cart is empty.<br>Tap the '+' button to add an item.</p>
     </main>
     
-    <button class="fab" id="scan-button" aria-label="Scan new item">
-        <!-- Using text instead of an icon for simplicity -->
-        □
-    </button>
+    <button class="fab" id="add-item-btn" aria-label="Add new item">+</button>
 
     <footer class="app-footer">
         <div class="total-card">
@@ -185,11 +212,24 @@
             <span class="total-amount" id="total-amount">$0.00</span>
         </div>
         <div class="ad-banner">
-            [ Mock Banner Ad ]<br>ca-app-pub-4313544696010088/3719457347
+            [ Simulated Banner Ad ]<br>ca-app-pub-4313544696010088/3719457347
         </div>
     </footer>
 
-    <!-- Template for a single grocery item (not displayed) -->
+    <!-- Add Item Modal -->
+    <div class="modal-backdrop" id="add-item-modal">
+        <div class="modal-content">
+            <h3>Add New Item</h3>
+            <input type="text" id="item-name-input" placeholder="Item Name (e.g., Milk)" required>
+            <input type="number" id="item-price-input" placeholder="Item Price (e.g., 3.49)" step="0.01" min="0" required>
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn">Cancel</button>
+                <button id="modal-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML Template for a grocery item -->
     <template id="grocery-item-template">
         <div class="grocery-item">
             <div class="item-details">
@@ -202,36 +242,34 @@
                 <button class="control-button increase-qty" aria-label="Increase quantity">+</button>
             </div>
             <span class="item-subtotal"></span>
-            <button class="delete-button" aria-label="Delete item">✕</button>
+            <button class="delete-button" aria-label="Delete item">×</button>
         </div>
     </template>
 
-
     <script>
+        // This is where all the application logic lives.
         document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Elements ---
             const listContainer = document.getElementById('grocery-list-container');
             const emptyStateMessage = document.getElementById('empty-state-message');
             const totalAmountEl = document.getElementById('total-amount');
-            const scanButton = document.getElementById('scan-button');
+            const addItemBtn = document.getElementById('add-item-btn');
             const itemTemplate = document.getElementById('grocery-item-template');
+            
+            // Modal Elements
+            const modal = document.getElementById('add-item-modal');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
+            const modalSaveBtn = document.getElementById('modal-save-btn');
+            const itemNameInput = document.getElementById('item-name-input');
+            const itemPriceInput = document.getElementById('item-price-input');
 
             // --- App State ---
             let groceryList = [];
 
-            // --- Sample Data for Demonstration ---
-            const sampleItems = [
-                { name: "Organic Bananas", price: 0.79 },
-                { name: "Whole Milk", price: 3.49 },
-                { name: "Cheddar Cheese", price: 4.99 },
-                { name: "Sourdough Bread", price: 5.25 },
-                { name: "Avocado", price: 1.99 },
-                { name: "Free-Range Eggs", price: 6.10 }
-            ];
-
             // --- Core Functions ---
 
             const saveList = () => {
+                // Use browser's local storage to remember the list
                 localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
             };
             
@@ -249,7 +287,7 @@
             };
 
             const render = () => {
-                // Clear current list
+                // Clear the current list before re-drawing
                 listContainer.innerHTML = '';
                 if (groceryList.length === 0) {
                     listContainer.appendChild(emptyStateMessage);
@@ -273,22 +311,33 @@
                 saveList();
             };
 
+            const showModal = () => {
+                itemNameInput.value = '';
+                itemPriceInput.value = '';
+                modal.style.display = 'flex';
+                itemNameInput.focus();
+            };
+            
+            const hideModal = () => {
+                modal.style.display = 'none';
+            };
+
             const addItem = () => {
-                const randomItem = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-                
-                // Prevent adding the same item twice; increase quantity instead
-                const existingItem = groceryList.find(item => item.name === randomItem.name);
-                if (existingItem) {
-                    existingItem.quantity++;
-                } else {
+                const name = itemNameInput.value.trim();
+                const price = parseFloat(itemPriceInput.value);
+
+                if (name && !isNaN(price) && price > 0) {
                     groceryList.push({
                         id: `id_${Date.now()}`,
-                        name: randomItem.name,
-                        price: randomItem.price,
+                        name: name,
+                        price: price,
                         quantity: 1
                     });
+                    render();
+                    hideModal();
+                } else {
+                    alert('Please enter a valid name and price.');
                 }
-                render();
             };
             
             const handleListClick = (event) => {
@@ -306,22 +355,31 @@
                     if (item.quantity > 1) {
                         item.quantity--;
                     } else {
-                        // Remove item if quantity becomes 0
+                        // Optional: ask for confirmation before deleting on quantity 0
                         groceryList = groceryList.filter(i => i.id !== itemId);
                     }
                 } else if (target.matches('.delete-button')) {
-                    groceryList = groceryList.filter(i => i.id !== itemId);
+                    if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+                        groceryList = groceryList.filter(i => i.id !== itemId);
+                    }
                 }
-                
                 render();
             };
 
-
             // --- Event Listeners ---
-            scanButton.addEventListener('click', addItem);
+            addItemBtn.addEventListener('click', showModal);
+            modalCancelBtn.addEventListener('click', hideModal);
+            modalSaveBtn.addEventListener('click', addItem);
             listContainer.addEventListener('click', handleListClick);
+            
+            // Close modal if backdrop is clicked
+            modal.addEventListener('click', (event) => {
+                if(event.target === modal) {
+                    hideModal();
+                }
+            });
 
-            // --- Initial Load ---
+            // --- Initial Application Load ---
             loadList();
         });
     </script>
