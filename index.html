@@ -1,274 +1,796 @@
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- DOM Elements ---
-        const listContainer = document.getElementById('grocery-list-container');
-        const groceryItemsView = document.getElementById('grocery-items-view'); // IMPORTANT: New reference
-        const emptyStateMessage = document.getElementById('empty-state-message');
-        const totalAmountEl = document.getElementById('total-amount');
-        const addItemBtn = document.getElementById('add-item-btn');
-        const itemTemplate = document.getElementById('grocery-item-template');
-        const currencySelector = document.getElementById('currency-selector');
-        const checkoutBtn = document.getElementById('checkout-btn');
-        const viewHistoryBtn = document.getElementById('view-history-btn');
-        const historySection = document.getElementById('history-section');
-        const historyListEl = document.getElementById('history-list');
-        const emptyHistoryMessage = document.getElementById('empty-history-message');
-        const historyItemTemplate = document.getElementById('history-item-template');
-        const clearHistoryBtn = document.getElementById('clear-history-btn');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGrocer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* Green */
+            --primary-dark: #388E3C;
+            --accent-color: #FFC107; /* Amber */
+            --background-color: #f4f7f6;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --light-text-color: #757575;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --danger-color: #f44336;
+        }
 
-        // Modal Elements
-        const modal = document.getElementById('add-item-modal');
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        const modalSaveBtn = document.getElementById('modal-save-btn');
-        const itemNameInput = document.getElementById('item-name-input');
-        const itemPriceInput = document.getElementById('item-price-input'); // Corrected typo here (was document = document)
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-        // --- App State ---
-        let groceryList = [];
-        let shoppingHistory = [];
-        let currentCurrency = localStorage.getItem('smartGrocerCurrency') || 'USD';
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        // --- Currency Configuration (Add/Remove as needed) ---
-        const currencySymbols = {
-            'USD': '$',
-            'EUR': '€',
-            'GBP': '£',
-            'PKR': '₨',
-            'JPY': '¥',
-        };
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
 
-        // --- Core Functions ---
+        .currency-selector-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-        const saveState = () => {
-            localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
-            localStorage.setItem('smartGrocerHistory', JSON.stringify(shoppingHistory));
-            localStorage.setItem('smartGrocerCurrency', currentCurrency);
-        };
+        .currency-selector-container label {
+            font-size: 0.9em;
+            font-weight: 300;
+        }
 
-        const loadState = () => {
-            const savedList = localStorage.getItem('smartGrocerList');
-            if (savedList) {
-                groceryList = JSON.parse(savedList);
+        .currency-selector {
+            padding: 5px 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.9em;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.5H18.6c-5%200-9.3%201.8-13.2%206.5-3.9%204.7-6%2010.8-6%2017.2s2.1%2012.5%206%2017.2l128%20128c3.9%203.9%209.2%206%2014.2%206s10.3-2.1%2014.2-6l128-128c3.9-3.9%206-9.2%206-14.2s-2.1-10.3-6-14.2z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 8px top 50%;
+            background-size: 12px auto;
+        }
+
+        .currency-selector option {
+            color: var(--text-color);
+            background-color: var(--card-background);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            position: relative; /* For absolute positioning of history */
+            min-height: 400px; /* Ensure space for content */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* --- Grocery List View Specific Styles --- */
+        #grocery-items-view {
+            flex-grow: 1; /* Allows it to take available space */
+            display: block; /* Managed by JS, default to block */
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--light-text-color);
+            padding: 50px 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .grocery-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .grocery-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-info .name {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .item-info .price {
+            font-size: 0.9em;
+            color: var(--light-text-color);
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            background-color: var(--background-color);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .quantity-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .quantity {
+            padding: 8px 15px;
+            min-width: 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .item-subtotal {
+            font-weight: 700;
+            margin-left: 20px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .delete-button {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.5em;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .delete-button:hover {
+            color: #d32f2f;
+        }
+
+        /* --- Total Card --- */
+        .total-card {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+
+        /* --- Footer and Action Buttons --- */
+        .footer-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 20px;
+            background-color: var(--card-background);
+            box-shadow: 0 -2px 4px var(--shadow-color);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            margin-top: auto; /* Push to bottom */
+            z-index: 10; /* Ensure it's above other content */
+        }
+
+        .action-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        #add-item-btn {
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            font-size: 1.5em; /* Larger for FAB */
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: fixed; /* Fixed position */
+            bottom: 30px; /* Adjust as needed */
+            right: 30px; /* Adjust as needed */
+            z-index: 100; /* Ensure it's on top */
+            /* Ensure it's initially flex as per JS */
+            display: flex; 
+        }
+
+        #add-item-btn:hover {
+            background-color: #ffda6a;
+            transform: translateY(-3px);
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-background);
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            width: 90%;
+            max-width: 400px;
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
             }
-            const savedHistory = localStorage.getItem('smartGrocerHistory');
-            if (savedHistory) {
-                shoppingHistory = JSON.parse(savedHistory);
+            to {
+                transform: translateY(0);
+                opacity: 1;
             }
-            currencySelector.value = currentCurrency; // Set initial currency in dropdown
-            
-            // Initial UI state: always show cart view and hide history
-            toggleHistoryView(false); // Force switch to cart view at load
-            renderHistory(); // Render history items once (they are hidden by toggleHistoryView)
-        };
+        }
 
-        const formatCurrency = (amount) => {
-            const symbol = currencySymbols[currentCurrency] || '$'; // Default to $ if not found
-            return `${symbol}${amount.toFixed(2)}`;
-        };
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 25px;
+        }
 
-        const calculateTotal = () => {
-            const total = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            totalAmountEl.textContent = formatCurrency(total);
-        };
+        .modal-content label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
 
-        const render = () => {
-            // Clear existing grocery items within their specific view container
-            groceryItemsView.innerHTML = ''; 
+        .modal-content input {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box; /* Include padding in width */
+        }
 
-            if (groceryList.length === 0) {
-                groceryItemsView.appendChild(emptyStateMessage);
-                emptyStateMessage.style.display = 'block';
-            } else {
-                emptyStateMessage.style.display = 'none';
-                const fragment = document.createDocumentFragment();
-                groceryList.forEach(item => {
-                    const itemNode = document.importNode(itemTemplate.content, true);
-                    const itemDiv = itemNode.querySelector('.grocery-item');
-                    itemDiv.dataset.id = item.id;
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
 
-                    itemNode.querySelector('.name').textContent = item.name;
-                    itemNode.querySelector('.price').textContent = `${formatCurrency(item.price)} each`;
-                    itemNode.querySelector('.quantity').textContent = parseFloat(item.quantity).toFixed(2);
-                    itemNode.querySelector('.item-subtotal').textContent = formatCurrency(item.price * item.quantity);
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
 
-                    fragment.appendChild(itemNode);
-                });
-                groceryItemsView.appendChild(fragment); // Append all items efficiently
-            }
-            calculateTotal();
-            saveState();
-        };
+        #modal-cancel-btn {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
 
-        const renderHistory = () => {
-            historyListEl.innerHTML = ''; // Clear existing history items
-            if (shoppingHistory.length === 0) {
-                emptyHistoryMessage.style.display = 'block';
-            } else {
-                emptyHistoryMessage.style.display = 'none';
-                const sortedHistory = [...shoppingHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
-                const fragment = document.createDocumentFragment();
-                sortedHistory.forEach(record => {
-                    const historyNode = document.importNode(historyItemTemplate.content, true);
-                    const date = new Date(record.date).toLocaleDateString();
-                    historyNode.querySelector('.history-date').textContent = date;
-                    
-                    const itemsBought = record.items.map(item => `${item.name} (${parseFloat(item.quantity).toFixed(2)})`).join(', ');
-                    historyNode.querySelector('.history-items-list').textContent = `Items: ${itemsBought}`;
+        #modal-cancel-btn:hover {
+            background-color: #c9c9c9;
+        }
 
-                    historyNode.querySelector('.history-total').textContent = formatCurrency(record.total);
-                    fragment.appendChild(historyNode);
-                });
-                historyListEl.appendChild(fragment);
-            }
-            saveState();
-        };
+        #modal-save-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
-        const showModal = () => {
-            itemNameInput.value = '';
-            itemPriceInput.value = '';
-            modal.style.display = 'flex';
-            itemNameInput.focus();
-        };
+        #modal-save-btn:hover {
+            background-color: var(--primary-dark);
+        }
 
-        const hideModal = () => {
-            modal.style.display = 'none';
-        };
+        /* --- History Section Styles --- */
+        .history-section {
+            display: none; /* Controlled by JS */
+            padding: 20px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            flex-grow: 1;
+            /* Make it occupy the same space as groceryItemsView */
+            position: absolute; 
+            top: 0; 
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 20px;
+            overflow-y: auto; /* Enable scrolling if history is long */
+        }
 
-        const addItem = () => {
-            const name = itemNameInput.value.trim();
-            const price = parseFloat(itemPriceInput.value);
+        .history-section h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-            if (name && !isNaN(price) && price > 0) {
-                groceryList.push({
-                    id: `id_${Date.now()}`,
-                    name: name,
-                    price: price,
-                    quantity: 1.00 
-                });
-                render(); // Re-render grocery list after adding
-                hideModal();
-            } else {
-                alert('Please enter a valid item name and price (must be a positive number).');
-            }
-        };
+        .history-item {
+            background-color: var(--background-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
-        const handleListClick = (event) => {
-            const target = event.target;
-            // Ensure we are interacting with a grocery item within the groceryItemsView
-            const itemDiv = target.closest('.grocery-item');
-            if (!itemDiv || !groceryItemsView.contains(itemDiv)) return; // Added check for parent
+        .history-date {
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.1em;
+        }
 
-            const itemId = itemDiv.dataset.id;
-            const item = groceryList.find(i => i.id === itemId);
-            if (!item) return;
+        .history-items-list {
+            font-size: 0.95em;
+            color: var(--light-text-color);
+            line-height: 1.4;
+        }
 
-            const quantityStep = 0.5; 
+        .history-total {
+            font-weight: 700;
+            font-size: 1.1em;
+            text-align: right;
+            color: var(--text-color);
+        }
 
-            if (target.matches('.increase-qty')) {
-                item.quantity += quantityStep;
-            } else if (target.matches('.decrease-qty')) {
-                if (item.quantity > quantityStep) { 
-                    item.quantity -= quantityStep;
-                } else if (item.quantity > 0 && item.quantity <= quantityStep) {
-                    if (confirm(`Are you sure you want to remove all ${item.name}?`)) {
+        .clear-history-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.2s ease;
+        }
+
+        .clear-history-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SmartGrocer</h1>
+        <div class="currency-selector-container">
+            <label for="currency-selector">Currency:</label>
+            <select id="currency-selector" class="currency-selector">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="PKR">PKR (₨)</option>
+                <option value="JPY">JPY (¥)</option>
+            </select>
+        </div>
+    </header>
+
+    <main class="main-content" id="grocery-list-container">
+        <div id="grocery-items-view">
+            <p class="empty-state" id="empty-state-message">Your cart is empty.<br>Tap the '+' button to add an item.</p>
+        </div>
+        
+        <div class="history-section" id="history-section" style="display: none;">
+            <h2>Shopping History</h2>
+            <div id="history-list">
+                <p class="empty-state" id="empty-history-message" style="display: block; padding: 20px 0;">No past shopping trips recorded.</p>
+            </div>
+            <button class="clear-history-btn" id="clear-history-btn">Clear History</button>
+        </div>
+    </main>
+
+    <div class="total-card">
+        <span>Total:</span>
+        <span id="total-amount">$0.00</span>
+    </div>
+
+    <div class="footer-actions">
+        <button id="checkout-btn" class="action-button">
+            Checkout & Save
+        </button>
+        <button id="view-history-btn" class="action-button">
+            History
+        </button>
+    </div>
+
+    <button id="add-item-btn" class="action-button">+</button>
+
+    <div id="add-item-modal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Item</h2>
+            <label for="item-name-input">Item Name:</label>
+            <input type="text" id="item-name-input" placeholder="e.g., Apples" required>
+
+            <label for="item-price-input">Item Price:</label>
+            <input type="number" id="item-price-input" step="0.01" min="0.01" placeholder="e.g., 1.99" required>
+
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="modal-btn">Cancel</button>
+                <button id="modal-save-btn" class="modal-btn">Add Item</button>
+            </div>
+        </div>
+    </div>
+
+    <template id="grocery-item-template">
+        <div class="grocery-item">
+            <div class="item-info">
+                <div class="name"></div>
+                <div class="price"></div>
+            </div>
+            <div class="quantity-controls">
+                <button class="quantity-btn decrease-qty">-</button>
+                <span class="quantity"></span>
+                <button class="quantity-btn increase-qty">+</button>
+            </div>
+            <span class="item-subtotal"></span>
+            <button class="delete-button">&times;</button>
+        </div>
+    </template>
+
+    <template id="history-item-template">
+        <div class="history-item">
+            <div class="history-date"></div>
+            <div class="history-items-list"></div>
+            <div class="history-total"></div>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const listContainer = document.getElementById('grocery-list-container');
+            const groceryItemsView = document.getElementById('grocery-items-view'); // IMPORTANT: Reference to the new container
+            const emptyStateMessage = document.getElementById('empty-state-message');
+            const totalAmountEl = document.getElementById('total-amount');
+            const addItemBtn = document.getElementById('add-item-btn');
+            const itemTemplate = document.getElementById('grocery-item-template');
+            const currencySelector = document.getElementById('currency-selector');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const viewHistoryBtn = document.getElementById('view-history-btn');
+            const historySection = document.getElementById('history-section');
+            const historyListEl = document.getElementById('history-list');
+            const emptyHistoryMessage = document.getElementById('empty-history-message');
+            const historyItemTemplate = document.getElementById('history-item-template');
+
+            // Modal Elements
+            const modal = document.getElementById('add-item-modal');
+            const modalCancelBtn = document.getElementById('modal-cancel-btn');
+            const modalSaveBtn = document.getElementById('modal-save-btn');
+            const itemNameInput = document.getElementById('item-name-input');
+            const itemPriceInput = document.getElementById('item-price-input'); // Corrected from `document = document`
+
+            // --- App State ---
+            let groceryList = [];
+            let shoppingHistory = [];
+            let currentCurrency = localStorage.getItem('smartGrocerCurrency') || 'USD';
+
+            // --- Currency Configuration (Add/Remove as needed) ---
+            const currencySymbols = {
+                'USD': '$',
+                'EUR': '€',
+                'GBP': '£',
+                'PKR': '₨',
+                'JPY': '¥',
+            };
+
+            // --- Core Functions ---
+
+            const saveState = () => {
+                localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
+                localStorage.setItem('smartGrocerHistory', JSON.stringify(shoppingHistory));
+                localStorage.setItem('smartGrocerCurrency', currentCurrency);
+            };
+
+            const loadState = () => {
+                const savedList = localStorage.getItem('smartGrocerList');
+                if (savedList) {
+                    groceryList = JSON.parse(savedList);
+                }
+                const savedHistory = localStorage.getItem('smartGrocerHistory');
+                if (savedHistory) {
+                    shoppingHistory = JSON.parse(savedHistory);
+                }
+                currencySelector.value = currentCurrency; // Set initial currency in dropdown
+                
+                // Set initial UI state: always show cart view and hide history
+                toggleHistoryView(false); // Force switch to cart view at load
+                renderHistory(); // Render history items once (they are hidden by toggleHistoryView)
+            };
+
+            const formatCurrency = (amount) => {
+                const symbol = currencySymbols[currentCurrency] || '$'; // Default to $ if not found
+                return `${symbol}${amount.toFixed(2)}`;
+            };
+
+            const calculateTotal = () => {
+                const total = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                totalAmountEl.textContent = formatCurrency(total);
+            };
+
+            const render = () => {
+                // Clear existing grocery items within their specific view container
+                groceryItemsView.innerHTML = ''; 
+
+                if (groceryList.length === 0) {
+                    groceryItemsView.appendChild(emptyStateMessage);
+                    emptyStateMessage.style.display = 'block';
+                } else {
+                    emptyStateMessage.style.display = 'none';
+                    const fragment = document.createDocumentFragment();
+                    groceryList.forEach(item => {
+                        const itemNode = document.importNode(itemTemplate.content, true);
+                        const itemDiv = itemNode.querySelector('.grocery-item');
+                        itemDiv.dataset.id = item.id;
+
+                        itemNode.querySelector('.name').textContent = item.name;
+                        itemNode.querySelector('.price').textContent = `${formatCurrency(item.price)} each`;
+                        itemNode.querySelector('.quantity').textContent = parseFloat(item.quantity).toFixed(2);
+                        itemNode.querySelector('.item-subtotal').textContent = formatCurrency(item.price * item.quantity);
+
+                        fragment.appendChild(itemNode);
+                    });
+                    groceryItemsView.appendChild(fragment); // Append all items efficiently
+                }
+                calculateTotal();
+                saveState();
+            };
+
+            const renderHistory = () => {
+                historyListEl.innerHTML = ''; // Clear existing history items
+                if (shoppingHistory.length === 0) {
+                    emptyHistoryMessage.style.display = 'block';
+                } else {
+                    emptyHistoryMessage.style.display = 'none';
+                    const sortedHistory = [...shoppingHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    const fragment = document.createDocumentFragment();
+                    sortedHistory.forEach(record => {
+                        const historyNode = document.importNode(historyItemTemplate.content, true);
+                        const date = new Date(record.date).toLocaleDateString();
+                        historyNode.querySelector('.history-date').textContent = date;
+                        
+                        const itemsBought = record.items.map(item => `${item.name} (${parseFloat(item.quantity).toFixed(2)})`).join(', ');
+                        historyNode.querySelector('.history-items-list').textContent = `Items: ${itemsBought}`;
+
+                        historyNode.querySelector('.history-total').textContent = formatCurrency(record.total);
+                        fragment.appendChild(historyNode);
+                    });
+                    historyListEl.appendChild(fragment);
+                }
+                saveState();
+            };
+
+            const showModal = () => {
+                itemNameInput.value = '';
+                itemPriceInput.value = '';
+                modal.style.display = 'flex';
+                itemNameInput.focus();
+            };
+
+            const hideModal = () => {
+                modal.style.display = 'none';
+            };
+
+            const addItem = () => {
+                const name = itemNameInput.value.trim();
+                const price = parseFloat(itemPriceInput.value);
+
+                if (name && !isNaN(price) && price > 0) {
+                    groceryList.push({
+                        id: `id_${Date.now()}`,
+                        name: name,
+                        price: price,
+                        quantity: 1.00 
+                    });
+                    render(); // Re-render grocery list after adding
+                    hideModal();
+                } else {
+                    alert('Please enter a valid item name and price (must be a positive number).');
+                }
+            };
+
+            const handleListClick = (event) => {
+                const target = event.target;
+                // Ensure we are interacting with a grocery item within the groceryItemsView
+                const itemDiv = target.closest('.grocery-item');
+                if (!itemDiv || !groceryItemsView.contains(itemDiv)) return; // Added check for parent to ensure it's from current view
+
+                const itemId = itemDiv.dataset.id;
+                const item = groceryList.find(i => i.id === itemId);
+                if (!item) return;
+
+                const quantityStep = 0.5; 
+
+                if (target.matches('.increase-qty')) {
+                    item.quantity += quantityStep;
+                } else if (target.matches('.decrease-qty')) {
+                    if (item.quantity > quantityStep) { 
+                        item.quantity -= quantityStep;
+                    } else if (item.quantity > 0 && item.quantity <= quantityStep) {
+                        if (confirm(`Are you sure you want to remove all ${item.name}?`)) {
+                            groceryList = groceryList.filter(i => i.id !== itemId);
+                        }
+                    }
+                } else if (target.matches('.delete-button')) {
+                    if (confirm(`Are you sure you want to delete ${item.name}?`)) {
                         groceryList = groceryList.filter(i => i.id !== itemId);
                     }
                 }
-            } else if (target.matches('.delete-button')) {
-                if (confirm(`Are you sure you want to delete ${item.name}?`)) {
-                    groceryList = groceryList.filter(i => i.id !== itemId);
+                render(); // Re-render grocery list after quantity change or delete
+            };
+
+            const checkout = () => {
+                if (groceryList.length === 0) {
+                    alert('Your cart is empty. Add items before checking out!');
+                    return;
                 }
-            }
-            render(); // Re-render grocery list after quantity change or delete
-        };
 
-        const checkout = () => {
-            if (groceryList.length === 0) {
-                alert('Your cart is empty. Add items before checking out!');
-                return;
-            }
+                const totalBill = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                
+                shoppingHistory.push({
+                    date: new Date().toISOString(),
+                    items: [...groceryList],
+                    total: totalBill,
+                    currency: currentCurrency
+                });
 
-            const totalBill = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
-            shoppingHistory.push({
-                date: new Date().toISOString(),
-                items: [...groceryList],
-                total: totalBill,
-                currency: currentCurrency
+                groceryList = []; 
+                alert(`Checkout successful! Total: ${formatCurrency(totalBill)}`);
+                
+                // After checkout, always revert to the main cart view and update content
+                toggleHistoryView(false); // Force switch to cart view
+            };
+
+            /**
+             * Manages the visibility of the grocery list view and history view,
+             * along with associated UI controls (FAB, Checkout, Total Card).
+             * @param {boolean|null} showHistory - True to show history, False to show cart. Null to toggle.
+             */
+            const toggleHistoryView = (showHistory = null) => {
+                const currentlyShowingHistory = historySection.style.display === 'block';
+                const willShowHistory = (showHistory === true) || (showHistory === null && !currentlyShowingHistory);
+                
+                if (willShowHistory) {
+                    // Switching to History View
+                    historySection.style.display = 'block';
+                    groceryItemsView.style.display = 'none'; // Hide grocery list content
+                    addItemBtn.style.display = 'none'; // Hide FAB
+                    checkoutBtn.style.display = 'none'; // Hide Checkout button
+                    totalAmountEl.closest('.total-card').style.display = 'none'; // Hide Total Card
+                    viewHistoryBtn.textContent = 'Back to Cart';
+                    renderHistory(); // Ensure history content is up-to-date
+                } else {
+                    // Switching to Cart View
+                    historySection.style.display = 'none';
+                    groceryItemsView.style.display = 'block'; // Show grocery list content
+                    addItemBtn.style.display = 'flex'; // Show FAB
+                    checkoutBtn.style.display = 'block'; // Show Checkout button
+                    totalAmountEl.closest('.total-card').style.display = 'flex'; // Show Total Card
+                    viewHistoryBtn.textContent = 'History';
+                    render(); // Ensure grocery list content is up-to-date
+                }
+            };
+
+            const clearAllHistory = () => {
+                if (confirm('Are you sure you want to clear all shopping history? This cannot be undone.')) {
+                    shoppingHistory = [];
+                    renderHistory();
+                }
+            };
+
+            // --- Event Listeners ---
+            addItemBtn.addEventListener('click', showModal);
+            modalCancelBtn.addEventListener('click', hideModal);
+            modalSaveBtn.addEventListener('click', addItem);
+            // Event listener for list clicks should now be on groceryItemsView
+            groceryItemsView.addEventListener('click', handleListClick); 
+            currencySelector.addEventListener('change', (event) => {
+                currentCurrency = event.target.value;
+                // Only re-render the active view to update currency display
+                if (groceryItemsView.style.display === 'block') {
+                    render(); 
+                } else if (historySection.style.display === 'block') {
+                    renderHistory();
+                }
+            });
+            checkoutBtn.addEventListener('click', checkout);
+            // Pass 'null' to toggleHistoryView to allow it to auto-toggle
+            viewHistoryBtn.addEventListener('click', () => toggleHistoryView(null)); 
+            clearHistoryBtn.addEventListener('click', clearAllHistory);
+
+            // Close modal if backdrop is clicked
+            modal.addEventListener('click', (event) => {
+                if(event.target === modal) {
+                    hideModal();
+                }
             });
 
-            groceryList = []; 
-            alert(`Checkout successful! Total: ${formatCurrency(totalBill)}`);
-            
-            // After checkout, always revert to the main cart view and update content
-            toggleHistoryView(false); // Force switch to cart view
-        };
-
-        /**
-         * Manages the visibility of the grocery list view and history view,
-         * along with associated UI controls (FAB, Checkout, Total Card).
-         * @param {boolean|null} showHistory - True to show history, False to show cart. Null to toggle.
-         */
-        const toggleHistoryView = (showHistory = null) => {
-            const currentlyShowingHistory = historySection.style.display === 'block';
-            const willShowHistory = (showHistory === true) || (showHistory === null && !currentlyShowingHistory);
-            
-            if (willShowHistory) {
-                // Switching to History View
-                historySection.style.display = 'block';
-                groceryItemsView.style.display = 'none'; // Hide grocery list content
-                addItemBtn.style.display = 'none'; // Hide FAB
-                checkoutBtn.style.display = 'none'; // Hide Checkout button
-                totalAmountEl.closest('.total-card').style.display = 'none'; // Hide Total Card
-                viewHistoryBtn.textContent = 'Back to Cart';
-                renderHistory(); // Ensure history content is up-to-date
-            } else {
-                // Switching to Cart View
-                historySection.style.display = 'none';
-                groceryItemsView.style.display = 'block'; // Show grocery list content
-                addItemBtn.style.display = 'flex'; // Show FAB
-                checkoutBtn.style.display = 'block'; // Show Checkout button
-                totalAmountEl.closest('.total-card').style.display = 'flex'; // Show Total Card
-                viewHistoryBtn.textContent = 'History';
-                render(); // Ensure grocery list content is up-to-date
-            }
-        };
-
-        const clearAllHistory = () => {
-            if (confirm('Are you sure you want to clear all shopping history? This cannot be undone.')) {
-                shoppingHistory = [];
-                renderHistory();
-            }
-        };
-
-        // --- Event Listeners ---
-        addItemBtn.addEventListener('click', showModal);
-        modalCancelBtn.addEventListener('click', hideModal);
-        modalSaveBtn.addEventListener('click', addItem);
-        // Event listener for list clicks should now be on groceryItemsView
-        groceryItemsView.addEventListener('click', handleListClick); 
-        currencySelector.addEventListener('change', (event) => {
-            currentCurrency = event.target.value;
-            // Only re-render the active view to update currency display
-            if (groceryItemsView.style.display === 'block') {
-                render(); 
-            } else if (historySection.style.display === 'block') {
-                renderHistory();
-            }
+            // --- Initial Application Load ---
+            loadState();
         });
-        checkoutBtn.addEventListener('click', checkout);
-        // Pass 'null' to toggleHistoryView to allow it to auto-toggle
-        viewHistoryBtn.addEventListener('click', () => toggleHistoryView(null)); 
-        clearHistoryBtn.addEventListener('click', clearAllHistory);
-
-        // Close modal if backdrop is clicked
-        modal.addEventListener('click', (event) => {
-            if(event.target === modal) {
-                hideModal();
-            }
-        });
-
-        // --- Initial Application Load ---
-        loadState();
-    });
-</script>
+    </script>
+</body>
+</html>
