@@ -38,6 +38,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 20; /* Ensure header is above main content if any z-index issues arise */
         }
 
         header h1 {
@@ -86,17 +87,20 @@
             background-color: var(--card-background);
             border-radius: 8px;
             box-shadow: 0 4px 8px var(--shadow-color);
-            position: relative; /* For absolute positioning of history */
-            min-height: 400px; /* Ensure space for content */
-            display: flex;
+            /* Removed position: relative here for history, now only for modal */
+            min-height: 400px; 
+            display: flex; /* Keep as flex to manage children */
             flex-direction: column;
             gap: 15px;
+            overflow: hidden; /* Important: Prevents children from overflowing outside this box */
         }
 
         /* --- Grocery List View Specific Styles --- */
         #grocery-items-view {
             flex-grow: 1; /* Allows it to take available space */
-            display: block; /* Managed by JS, default to block */
+            display: block; /* Managed by JS */
+            overflow-y: auto; /* Enable scrolling for grocery items if list is long */
+            padding-right: 5px; /* Add small padding for scrollbar not to overlap content */
         }
 
         .empty-state {
@@ -191,7 +195,7 @@
             color: white;
             padding: 15px 20px;
             border-radius: 8px;
-            display: flex;
+            display: flex; /* Managed by JS */
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
@@ -248,16 +252,14 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            display: flex;
+            display: flex; /* Managed by JS */
             justify-content: center;
             align-items: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: fixed; /* Fixed position */
+            position: fixed; /* Fixed position relative to viewport */
             bottom: 30px; /* Adjust as needed */
             right: 30px; /* Adjust as needed */
-            z-index: 100; /* Ensure it's on top */
-            /* Ensure it's initially flex as per JS */
-            display: flex; 
+            z-index: 100; /* Ensure it's on top of everything */
         }
 
         #add-item-btn:hover {
@@ -362,28 +364,41 @@
 
         /* --- History Section Styles --- */
         .history-section {
-            display: none; /* Controlled by JS */
-            padding: 20px;
-            background-color: var(--card-background);
+            /* Removed position: absolute; top:0; left:0; etc. */
+            display: none; /* Controlled by JS, default to hidden */
+            flex-grow: 1; /* Allows it to take available space within main-content */
+            padding: 20px; /* Keep padding consistent with grocery-items-view */
+            background-color: var(--card-background); /* Keep its background */
             border-radius: 8px;
             box-shadow: 0 4px 8px var(--shadow-color);
-            flex-grow: 1;
-            /* Make it occupy the same space as groceryItemsView */
-            position: absolute; 
-            top: 0; 
-            left: 0;
-            right: 0;
-            bottom: 0;
-            padding: 20px;
-            overflow-y: auto; /* Enable scrolling if history is long */
+            overflow-y: auto; /* Enable scrolling for history items if list is long */
+            /* Add some margin to separate from the top (header) */
+            margin-top: -15px; /* Adjust to align with main-content's padding, or remove margin from main-content */
+            padding-right: 5px; /* For scrollbar */
         }
+        /* If main-content padding is 20px and you want history to fill the whole box,
+           you might need to adjust history-section's padding to match main-content's internal content area */
+        .main-content .history-section { /* More specific selector */
+            padding: 0; /* Remove its own padding to align with grocery-items-view */
+            margin: 0; /* Remove its own margin to align with grocery-items-view */
+            /* The overall main-content already has padding.
+               We want history-section's content to fill that space correctly. */
+        }
+
 
         .history-section h2 {
             color: var(--primary-color);
             margin-top: 0;
             text-align: center;
             margin-bottom: 20px;
+            padding-top: 20px; /* Add padding to top of title if .history-section has padding:0 */
         }
+
+        #history-list {
+            padding-left: 20px; /* Inherit main-content's left padding */
+            padding-right: 20px; /* Inherit main-content's right padding */
+        }
+
 
         .history-item {
             background-color: var(--background-color);
@@ -425,7 +440,7 @@
             font-size: 0.9em;
             font-weight: 600;
             display: block;
-            margin: 20px auto 0;
+            margin: 20px auto; /* Centered with top/bottom margin */
             transition: background-color 0.2s ease;
         }
 
@@ -454,10 +469,10 @@
             <p class="empty-state" id="empty-state-message">Your cart is empty.<br>Tap the '+' button to add an item.</p>
         </div>
         
-        <div class="history-section" id="history-section" style="display: none;">
+        <div class="history-section" id="history-section">
             <h2>Shopping History</h2>
             <div id="history-list">
-                <p class="empty-state" id="empty-history-message" style="display: block; padding: 20px 0;">No past shopping trips recorded.</p>
+                <p class="empty-state" id="empty-history-message">No past shopping trips recorded.</p>
             </div>
             <button class="clear-history-btn" id="clear-history-btn">Clear History</button>
         </div>
@@ -522,8 +537,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Elements ---
-            const listContainer = document.getElementById('grocery-list-container');
-            const groceryItemsView = document.getElementById('grocery-items-view'); // IMPORTANT: Reference to the new container
+            const groceryListContainer = document.getElementById('grocery-list-container'); // Renamed from listContainer for clarity
+            const groceryItemsView = document.getElementById('grocery-items-view');
             const emptyStateMessage = document.getElementById('empty-state-message');
             const totalAmountEl = document.getElementById('total-amount');
             const addItemBtn = document.getElementById('add-item-btn');
@@ -535,20 +550,21 @@
             const historyListEl = document.getElementById('history-list');
             const emptyHistoryMessage = document.getElementById('empty-history-message');
             const historyItemTemplate = document.getElementById('history-item-template');
+            const clearHistoryBtn = document.getElementById('clear-history-btn'); // Added reference for clear history button
 
             // Modal Elements
             const modal = document.getElementById('add-item-modal');
             const modalCancelBtn = document.getElementById('modal-cancel-btn');
             const modalSaveBtn = document.getElementById('modal-save-btn');
             const itemNameInput = document.getElementById('item-name-input');
-            const itemPriceInput = document.getElementById('item-price-input'); // Corrected from `document = document`
+            const itemPriceInput = document.getElementById('item-price-input');
 
             // --- App State ---
             let groceryList = [];
             let shoppingHistory = [];
             let currentCurrency = localStorage.getItem('smartGrocerCurrency') || 'USD';
 
-            // --- Currency Configuration (Add/Remove as needed) ---
+            // --- Currency Configuration ---
             const currencySymbols = {
                 'USD': '$',
                 'EUR': '€',
@@ -574,15 +590,13 @@
                 if (savedHistory) {
                     shoppingHistory = JSON.parse(savedHistory);
                 }
-                currencySelector.value = currentCurrency; // Set initial currency in dropdown
-                
-                // Set initial UI state: always show cart view and hide history
-                toggleHistoryView(false); // Force switch to cart view at load
-                renderHistory(); // Render history items once (they are hidden by toggleHistoryView)
+                currencySelector.value = currentCurrency;
+                toggleHistoryView(false); // Ensure main cart view is shown on load
+                renderHistory(); // Render history data once, it will be hidden initially
             };
 
             const formatCurrency = (amount) => {
-                const symbol = currencySymbols[currentCurrency] || '$'; // Default to $ if not found
+                const symbol = currencySymbols[currentCurrency] || '$';
                 return `${symbol}${amount.toFixed(2)}`;
             };
 
@@ -599,7 +613,7 @@
                     groceryItemsView.appendChild(emptyStateMessage);
                     emptyStateMessage.style.display = 'block';
                 } else {
-                    emptyStateMessage.style.display = 'none';
+                    emptyStateMessage.style.display = 'none'; // Ensure empty state is hidden if items exist
                     const fragment = document.createDocumentFragment();
                     groceryList.forEach(item => {
                         const itemNode = document.importNode(itemTemplate.content, true);
@@ -623,13 +637,17 @@
                 historyListEl.innerHTML = ''; // Clear existing history items
                 if (shoppingHistory.length === 0) {
                     emptyHistoryMessage.style.display = 'block';
+                    historyListEl.appendChild(emptyHistoryMessage); // Append to historyListEl
                 } else {
-                    emptyHistoryMessage.style.display = 'none';
+                    emptyHistoryMessage.style.display = 'none'; // Ensure empty history message is hidden
                     const sortedHistory = [...shoppingHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
                     const fragment = document.createDocumentFragment();
                     sortedHistory.forEach(record => {
                         const historyNode = document.importNode(historyItemTemplate.content, true);
-                        const date = new Date(record.date).toLocaleDateString();
+                        const date = new Date(record.date).toLocaleDateString(undefined, {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        }); // More detailed date format
                         historyNode.querySelector('.history-date').textContent = date;
                         
                         const itemsBought = record.items.map(item => `${item.name} (${parseFloat(item.quantity).toFixed(2)})`).join(', ');
@@ -765,8 +783,7 @@
             addItemBtn.addEventListener('click', showModal);
             modalCancelBtn.addEventListener('click', hideModal);
             modalSaveBtn.addEventListener('click', addItem);
-            // Event listener for list clicks should now be on groceryItemsView
-            groceryItemsView.addEventListener('click', handleListClick); 
+            groceryItemsView.addEventListener('click', handleListClick); // Event listener for list clicks should now be on groceryItemsView
             currencySelector.addEventListener('change', (event) => {
                 currentCurrency = event.target.value;
                 // Only re-render the active view to update currency display
@@ -777,9 +794,8 @@
                 }
             });
             checkoutBtn.addEventListener('click', checkout);
-            // Pass 'null' to toggleHistoryView to allow it to auto-toggle
             viewHistoryBtn.addEventListener('click', () => toggleHistoryView(null)); 
-            clearHistoryBtn.addEventListener('click', clearAllHistory);
+            clearHistoryBtn.addEventListener('click', clearAllHistory); // Event listener for clear history button
 
             // Close modal if backdrop is clicked
             modal.addEventListener('click', (event) => {
