@@ -39,6 +39,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             text-align: center;
             flex-shrink: 0;
+            display: flex; /* For currency dropdown */
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            flex-grow: 1;
+            text-align: center;
         }
 
         .main-content {
@@ -83,8 +91,8 @@
 
         .item-controls { display: flex; align-items: center; }
         .item-controls .quantity { padding: 0 14px; font-weight: bold; font-size: 1.1em; }
-        .item-subtotal { font-weight: 500; width: 70px; text-align: right; padding-right: 8px; }
-        
+        .item-subtotal { font-weight: 500; width: 80px; text-align: right; padding-right: 8px; } /* Adjusted width */
+
         .control-button, .delete-button {
             border: 1px solid #ddd;
             background-color: transparent;
@@ -104,7 +112,7 @@
             color: var(--error-color);
             font-size: 24px;
         }
-        
+
         /* --- Total & Ad Banner --- */
         .total-card {
             background-color: var(--surface-color);
@@ -194,16 +202,140 @@
         }
         #modal-save-btn { background-color: var(--primary-color); color: var(--on-primary-color); }
         #modal-cancel-btn { background-color: #eee; }
+
+        /* --- Currency Selector --- */
+        .currency-select {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.5);
+            background-color: rgba(255,255,255,0.2);
+            color: var(--on-primary-color);
+            font-size: 0.9em;
+            cursor: pointer;
+            appearance: none; /* Remove default dropdown arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 30px; /* Make space for the custom arrow */
+        }
+        .currency-select option {
+            color: var(--on-surface-color); /* Options should be dark */
+            background-color: var(--surface-color);
+        }
+
+        /* --- History Section --- */
+        .history-section {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            margin: 8px 16px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+        .history-section h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dotted #eee;
+            font-size: 0.95em;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-date {
+            font-weight: bold;
+            color: var(--on-surface-variant-color);
+            font-size: 0.85em;
+        }
+        .history-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        .history-items-list {
+            font-size: 0.8em;
+            color: var(--on-surface-variant-color);
+        }
+        .history-total {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1em;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        .clear-history-btn {
+            background-color: var(--error-color);
+            color: var(--on-primary-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        .clear-history-btn:active {
+            background-color: #a0021b;
+        }
+
+        /* --- Checkout Button --- */
+        .checkout-button {
+            background-color: var(--primary-color);
+            color: var(--on-primary-color);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            width: calc(100% - 16px);
+            margin: 8px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.2s;
+        }
+        .checkout-button:active {
+            background-color: #3A7AD9;
+        }
     </style>
 </head>
 <body>
 
-    <header class="app-header">SmartGrocer</header>
+    <header class="app-header">
+        <select id="currency-selector" class="currency-select" aria-label="Select currency">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="PKR">PKR (₨)</option>
+            <option value="JPY">JPY (¥)</option>
+        </select>
+        <div class="header-title">SmartGrocer</div>
+        <button id="view-history-btn" class="control-button" style="width:auto; height: auto; padding: 5px 10px; font-size: 0.9em; color: var(--on-primary-color); border-color: rgba(255,255,255,0.5);">History</button>
+    </header>
 
     <main class="main-content" id="grocery-list-container">
         <p class="empty-state" id="empty-state-message">Your cart is empty.<br>Tap the '+' button to add an item.</p>
+
+        <div class="history-section" id="history-section" style="display: none;">
+            <h2>Shopping History</h2>
+            <div id="history-list">
+                <p class="empty-state" id="empty-history-message" style="display: block; padding: 20px 0;">No past shopping trips recorded.</p>
+            </div>
+            <button class="clear-history-btn" id="clear-history-btn">Clear History</button>
+        </div>
     </main>
-    
+
     <button class="fab" id="add-item-btn" aria-label="Add new item">+</button>
 
     <footer class="app-footer">
@@ -211,12 +343,12 @@
             <span>Total Bill:</span>
             <span class="total-amount" id="total-amount">$0.00</span>
         </div>
+        <button class="checkout-button" id="checkout-btn">Checkout & Save</button>
         <div class="ad-banner">
             [ Simulated Banner Ad ]<br>ca-app-pub-4313544696010088/3719457347
         </div>
     </footer>
 
-    <!-- Add Item Modal -->
     <div class="modal-backdrop" id="add-item-modal">
         <div class="modal-content">
             <h3>Add New Item</h3>
@@ -229,7 +361,6 @@
         </div>
     </div>
 
-    <!-- HTML Template for a grocery item -->
     <template id="grocery-item-template">
         <div class="grocery-item">
             <div class="item-details">
@@ -246,8 +377,17 @@
         </div>
     </template>
 
+    <template id="history-item-template">
+        <div class="history-item">
+            <div class="history-details">
+                <div class="history-date"></div>
+                <div class="history-items-list"></div>
+            </div>
+            <div class="history-total"></div>
+        </div>
+    </template>
+
     <script>
-        // This is where all the application logic lives.
         document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Elements ---
             const listContainer = document.getElementById('grocery-list-container');
@@ -255,7 +395,15 @@
             const totalAmountEl = document.getElementById('total-amount');
             const addItemBtn = document.getElementById('add-item-btn');
             const itemTemplate = document.getElementById('grocery-item-template');
-            
+            const currencySelector = document.getElementById('currency-selector');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const viewHistoryBtn = document.getElementById('view-history-btn');
+            const historySection = document.getElementById('history-section');
+            const historyListEl = document.getElementById('history-list');
+            const emptyHistoryMessage = document.getElementById('empty-history-message');
+            const historyItemTemplate = document.getElementById('history-item-template');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+
             // Modal Elements
             const modal = document.getElementById('add-item-modal');
             const modalCancelBtn = document.getElementById('modal-cancel-btn');
@@ -265,30 +413,53 @@
 
             // --- App State ---
             let groceryList = [];
+            let shoppingHistory = [];
+            let currentCurrency = localStorage.getItem('smartGrocerCurrency') || 'USD';
+
+            // --- Currency Configuration (Add/Remove as needed) ---
+            const currencySymbols = {
+                'USD': '$',
+                'EUR': '€',
+                'GBP': '£',
+                'PKR': '₨',
+                'JPY': '¥',
+            };
 
             // --- Core Functions ---
 
-            const saveList = () => {
-                // Use browser's local storage to remember the list
+            const saveState = () => {
                 localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
+                localStorage.setItem('smartGrocerHistory', JSON.stringify(shoppingHistory));
+                localStorage.setItem('smartGrocerCurrency', currentCurrency);
             };
-            
-            const loadList = () => {
+
+            const loadState = () => {
                 const savedList = localStorage.getItem('smartGrocerList');
                 if (savedList) {
                     groceryList = JSON.parse(savedList);
                 }
+                const savedHistory = localStorage.getItem('smartGrocerHistory');
+                if (savedHistory) {
+                    shoppingHistory = JSON.parse(savedHistory);
+                }
+                currencySelector.value = currentCurrency; // Set initial currency in dropdown
                 render();
+                renderHistory();
+            };
+
+            const formatCurrency = (amount) => {
+                const symbol = currencySymbols[currentCurrency] || '$'; // Default to $ if not found
+                return `${symbol}${amount.toFixed(2)}`;
             };
 
             const calculateTotal = () => {
                 const total = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                totalAmountEl.textContent = `$${total.toFixed(2)}`;
+                totalAmountEl.textContent = formatCurrency(total);
             };
 
             const render = () => {
                 // Clear the current list before re-drawing
-                listContainer.innerHTML = '';
+                listContainer.innerHTML = ''; // Clear existing content including history
                 if (groceryList.length === 0) {
                     listContainer.appendChild(emptyStateMessage);
                     emptyStateMessage.style.display = 'block';
@@ -298,91 +469,42 @@
                         const itemNode = document.importNode(itemTemplate.content, true);
                         const itemDiv = itemNode.querySelector('.grocery-item');
                         itemDiv.dataset.id = item.id;
-                        
+
                         itemNode.querySelector('.name').textContent = item.name;
-                        itemNode.querySelector('.price').textContent = `$${item.price.toFixed(2)} each`;
-                        itemNode.querySelector('.quantity').textContent = item.quantity;
-                        itemNode.querySelector('.item-subtotal').textContent = `$${(item.price * item.quantity).toFixed(2)}`;
-                        
+                        itemNode.querySelector('.price').textContent = `${formatCurrency(item.price)} each`;
+                        // Ensure quantity displays decimals
+                        itemNode.querySelector('.quantity').textContent = parseFloat(item.quantity).toFixed(2);
+                        itemNode.querySelector('.item-subtotal').textContent = formatCurrency(item.price * item.quantity);
+
                         listContainer.appendChild(itemNode);
                     });
                 }
+                // Always append history section, its display is controlled by CSS
+                listContainer.appendChild(historySection);
                 calculateTotal();
-                saveList();
+                saveState();
             };
 
-            const showModal = () => {
-                itemNameInput.value = '';
-                itemPriceInput.value = '';
-                modal.style.display = 'flex';
-                itemNameInput.focus();
-            };
-            
-            const hideModal = () => {
-                modal.style.display = 'none';
-            };
-
-            const addItem = () => {
-                const name = itemNameInput.value.trim();
-                const price = parseFloat(itemPriceInput.value);
-
-                if (name && !isNaN(price) && price > 0) {
-                    groceryList.push({
-                        id: `id_${Date.now()}`,
-                        name: name,
-                        price: price,
-                        quantity: 1
-                    });
-                    render();
-                    hideModal();
+            const renderHistory = () => {
+                historyListEl.innerHTML = '';
+                if (shoppingHistory.length === 0) {
+                    emptyHistoryMessage.style.display = 'block';
                 } else {
-                    alert('Please enter a valid name and price.');
+                    emptyHistoryMessage.style.display = 'none';
+                    // Sort history by date, newest first
+                    const sortedHistory = [...shoppingHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+                    sortedHistory.forEach(record => {
+                        const historyNode = document.importNode(historyItemTemplate.content, true);
+                        const date = new Date(record.date).toLocaleDateString();
+                        historyNode.querySelector('.history-date').textContent = date;
+                        
+                        // Display items bought in this trip
+                        const itemsBought = record.items.map(item => `${item.name} (${parseFloat(item.quantity).toFixed(2)})`).join(', ');
+                        historyNode.querySelector('.history-items-list').textContent = `Items: ${itemsBought}`;
+
+                        historyNode.querySelector('.history-total').textContent = formatCurrency(record.total);
+                        historyListEl.appendChild(historyNode);
+                    });
                 }
-            };
-            
-            const handleListClick = (event) => {
-                const target = event.target;
-                const itemDiv = target.closest('.grocery-item');
-                if (!itemDiv) return;
-                
-                const itemId = itemDiv.dataset.id;
-                const item = groceryList.find(i => i.id === itemId);
-                if (!item) return;
-
-                if (target.matches('.increase-qty')) {
-                    item.quantity++;
-                } else if (target.matches('.decrease-qty')) {
-                    if (item.quantity > 1) {
-                        item.quantity--;
-                    } else {
-                        // Optional: ask for confirmation before deleting on quantity 0
-                        groceryList = groceryList.filter(i => i.id !== itemId);
-                    }
-                } else if (target.matches('.delete-button')) {
-                    if (confirm(`Are you sure you want to delete ${item.name}?`)) {
-                        groceryList = groceryList.filter(i => i.id !== itemId);
-                    }
-                }
-                render();
-            };
-
-            // --- Event Listeners ---
-            addItemBtn.addEventListener('click', showModal);
-            modalCancelBtn.addEventListener('click', hideModal);
-            modalSaveBtn.addEventListener('click', addItem);
-            listContainer.addEventListener('click', handleListClick);
-            
-            // Close modal if backdrop is clicked
-            modal.addEventListener('click', (event) => {
-                if(event.target === modal) {
-                    hideModal();
-                }
-            });
-
-            // --- Initial Application Load ---
-            loadList();
-        });
-    </script>
-
-</body>
-</html>
+                saveState();
+           
