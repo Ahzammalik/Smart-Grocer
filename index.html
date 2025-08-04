@@ -1,510 +1,274 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SmartGrocer App</title>
-    <style>
-        /* --- Core App Styles (Material Design Inspired) --- */
-        :root {
-            --primary-color: #4A90E2;      /* A modern, friendly blue */
-            --secondary-color: #50E3C2;   /* A vibrant mint green for actions */
-            --background-color: #F4F6F8;  /* A light, clean grey */
-            --surface-color: #FFFFFF;     /* For cards and surfaces */
-            --on-primary-color: #FFFFFF;
-            --on-surface-color: #333333;
-            --on-surface-variant-color: #888888;
-            --error-color: #D0021B;
-            --ad-background-color: #1A1A1A;
-        }
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Elements ---
+        const listContainer = document.getElementById('grocery-list-container');
+        const groceryItemsView = document.getElementById('grocery-items-view'); // IMPORTANT: New reference
+        const emptyStateMessage = document.getElementById('empty-state-message');
+        const totalAmountEl = document.getElementById('total-amount');
+        const addItemBtn = document.getElementById('add-item-btn');
+        const itemTemplate = document.getElementById('grocery-item-template');
+        const currencySelector = document.getElementById('currency-selector');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const viewHistoryBtn = document.getElementById('view-history-btn');
+        const historySection = document.getElementById('history-section');
+        const historyListEl = document.getElementById('history-list');
+        const emptyHistoryMessage = document.getElementById('empty-history-message');
+        const historyItemTemplate = document.getElementById('history-item-template');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
 
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--background-color);
-            color: var(--on-surface-color);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+        // Modal Elements
+        const modal = document.getElementById('add-item-modal');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalSaveBtn = document.getElementById('modal-save-btn');
+        const itemNameInput = document.getElementById('item-name-input');
+        const itemPriceInput = document.getElementById('item-price-input'); // Corrected typo here (was document = document)
 
-        /* --- App Structure --- */
-        .app-header {
-            background-color: var(--primary-color);
-            color: var(--on-primary-color);
-            padding: 16px;
-            font-size: 1.25em;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-            flex-shrink: 0;
-            display: flex; /* For currency dropdown */
-            justify-content: space-between;
-            align-items: center;
-        }
+        // --- App State ---
+        let groceryList = [];
+        let shoppingHistory = [];
+        let currentCurrency = localStorage.getItem('smartGrocerCurrency') || 'USD';
 
-        .header-title {
-            flex-grow: 1;
-            text-align: center;
-        }
+        // --- Currency Configuration (Add/Remove as needed) ---
+        const currencySymbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'PKR': '₨',
+            'JPY': '¥',
+        };
 
-        .main-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 8px 0;
-        }
+        // --- Core Functions ---
 
-        .app-footer {
-            background-color: var(--background-color);
-            padding: 8px;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-            flex-shrink: 0;
-        }
+        const saveState = () => {
+            localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
+            localStorage.setItem('smartGrocerHistory', JSON.stringify(shoppingHistory));
+            localStorage.setItem('smartGrocerCurrency', currentCurrency);
+        };
 
-        /* --- Grocery List Item Styling --- */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--on-surface-variant-color);
-            font-size: 1.1em;
-            line-height: 1.5;
-        }
+        const loadState = () => {
+            const savedList = localStorage.getItem('smartGrocerList');
+            if (savedList) {
+                groceryList = JSON.parse(savedList);
+            }
+            const savedHistory = localStorage.getItem('smartGrocerHistory');
+            if (savedHistory) {
+                shoppingHistory = JSON.parse(savedHistory);
+            }
+            currencySelector.value = currentCurrency; // Set initial currency in dropdown
+            
+            // Initial UI state: always show cart view and hide history
+            toggleHistoryView(false); // Force switch to cart view at load
+            renderHistory(); // Render history items once (they are hidden by toggleHistoryView)
+        };
 
-        .grocery-item {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            margin: 8px 16px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            transition: transform 0.2s;
-        }
-        .grocery-item:active {
-            transform: scale(0.98);
-        }
+        const formatCurrency = (amount) => {
+            const symbol = currencySymbols[currentCurrency] || '$'; // Default to $ if not found
+            return `${symbol}${amount.toFixed(2)}`;
+        };
 
-        .item-details { flex-grow: 1; padding: 0 12px; }
-        .item-details .name { font-weight: bold; }
-        .item-details .price { font-size: 0.9em; color: var(--on-surface-variant-color); }
+        const calculateTotal = () => {
+            const total = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalAmountEl.textContent = formatCurrency(total);
+        };
 
-        .item-controls { display: flex; align-items: center; }
-        .item-controls .quantity { padding: 0 14px; font-weight: bold; font-size: 1.1em; }
-        .item-subtotal { font-weight: 500; width: 80px; text-align: right; padding-right: 8px; } /* Adjusted width */
+        const render = () => {
+            // Clear existing grocery items within their specific view container
+            groceryItemsView.innerHTML = ''; 
 
-        .control-button, .delete-button {
-            border: 1px solid #ddd;
-            background-color: transparent;
-            color: var(--primary-color);
-            cursor: pointer;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            font-size: 18px;
-            line-height: 1;
-            transition: background-color 0.2s;
-        }
-        .control-button:active { background-color: #e0e0e0; }
+            if (groceryList.length === 0) {
+                groceryItemsView.appendChild(emptyStateMessage);
+                emptyStateMessage.style.display = 'block';
+            } else {
+                emptyStateMessage.style.display = 'none';
+                const fragment = document.createDocumentFragment();
+                groceryList.forEach(item => {
+                    const itemNode = document.importNode(itemTemplate.content, true);
+                    const itemDiv = itemNode.querySelector('.grocery-item');
+                    itemDiv.dataset.id = item.id;
 
-        .delete-button {
-            border: none;
-            color: var(--error-color);
-            font-size: 24px;
-        }
+                    itemNode.querySelector('.name').textContent = item.name;
+                    itemNode.querySelector('.price').textContent = `${formatCurrency(item.price)} each`;
+                    itemNode.querySelector('.quantity').textContent = parseFloat(item.quantity).toFixed(2);
+                    itemNode.querySelector('.item-subtotal').textContent = formatCurrency(item.price * item.quantity);
 
-        /* --- Total & Ad Banner --- */
-        .total-card {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        .total-card .total-amount { color: var(--primary-color); font-size: 1.25em; }
+                    fragment.appendChild(itemNode);
+                });
+                groceryItemsView.appendChild(fragment); // Append all items efficiently
+            }
+            calculateTotal();
+            saveState();
+        };
 
-        .ad-banner {
-            background-color: var(--ad-background-color);
-            color: #FFFFFF;
-            text-align: center;
-            padding: 16px 8px;
-            font-size: 0.9em;
-            line-height: 1.3;
-        }
+        const renderHistory = () => {
+            historyListEl.innerHTML = ''; // Clear existing history items
+            if (shoppingHistory.length === 0) {
+                emptyHistoryMessage.style.display = 'block';
+            } else {
+                emptyHistoryMessage.style.display = 'none';
+                const sortedHistory = [...shoppingHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const fragment = document.createDocumentFragment();
+                sortedHistory.forEach(record => {
+                    const historyNode = document.importNode(historyItemTemplate.content, true);
+                    const date = new Date(record.date).toLocaleDateString();
+                    historyNode.querySelector('.history-date').textContent = date;
+                    
+                    const itemsBought = record.items.map(item => `${item.name} (${parseFloat(item.quantity).toFixed(2)})`).join(', ');
+                    historyNode.querySelector('.history-items-list').textContent = `Items: ${itemsBought}`;
 
-        /* --- Floating Action Button (FAB) --- */
-        .fab {
-            position: fixed;
-            bottom: 100px; /* Adjust based on ad height */
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background-color: var(--secondary-color);
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--on-surface-color);
-            cursor: pointer;
-            font-size: 28px;
-            font-weight: 300;
-            transition: transform 0.2s;
-        }
-        .fab:active { transform: scale(0.95); }
+                    historyNode.querySelector('.history-total').textContent = formatCurrency(record.total);
+                    fragment.appendChild(historyNode);
+                });
+                historyListEl.appendChild(fragment);
+            }
+            saveState();
+        };
 
-        /* --- Add Item Modal --- */
-        .modal-backdrop {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: none; /* Initially hidden */
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-        }
-        .modal-content {
-            background-color: var(--surface-color);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            width: calc(100% - 40px);
-            max-width: 320px;
-        }
-        .modal-content h3 { margin-top: 0; }
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1em;
-            box-sizing: border-box;
-        }
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-        .modal-buttons button {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            font-size: 1em;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        #modal-save-btn { background-color: var(--primary-color); color: var(--on-primary-color); }
-        #modal-cancel-btn { background-color: #eee; }
+        const showModal = () => {
+            itemNameInput.value = '';
+            itemPriceInput.value = '';
+            modal.style.display = 'flex';
+            itemNameInput.focus();
+        };
 
-        /* --- Currency Selector --- */
-        .currency-select {
-            padding: 6px 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.5);
-            background-color: rgba(255,255,255,0.2);
-            color: var(--on-primary-color);
-            font-size: 0.9em;
-            cursor: pointer;
-            appearance: none; /* Remove default dropdown arrow */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 16px;
-            padding-right: 30px; /* Make space for the custom arrow */
-        }
-        .currency-select option {
-            color: var(--on-surface-color); /* Options should be dark */
-            background-color: var(--surface-color);
-        }
+        const hideModal = () => {
+            modal.style.display = 'none';
+        };
 
-        /* --- History Section --- */
-        .history-section {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            margin: 8px 16px;
-            padding: 16px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            margin-top: 20px;
-        }
-        .history-section h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-            font-size: 1.1em;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px dotted #eee;
-            font-size: 0.95em;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .history-date {
-            font-weight: bold;
-            color: var(--on-surface-variant-color);
-            font-size: 0.85em;
-        }
-        .history-details {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            margin-left: 10px;
-        }
-        .history-items-list {
-            font-size: 0.8em;
-            color: var(--on-surface-variant-color);
-        }
-        .history-total {
-            font-weight: bold;
-            color: var(--primary-color);
-            font-size: 1em;
-            white-space: nowrap; /* Prevent wrapping */
-        }
-        .clear-history-btn {
-            background-color: var(--error-color);
-            color: var(--on-primary-color);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-top: 15px;
-        }
-        .clear-history-btn:active {
-            background-color: #a0021b;
-        }
+        const addItem = () => {
+            const name = itemNameInput.value.trim();
+            const price = parseFloat(itemPriceInput.value);
 
-        /* --- Checkout Button --- */
-        .checkout-button {
-            background-color: var(--primary-color);
-            color: var(--on-primary-color);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 500;
-            width: calc(100% - 16px);
-            margin: 8px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.2s;
-        }
-        .checkout-button:active {
-            background-color: #3A7AD9;
-        }
-    </style>
-</head>
-<body>
+            if (name && !isNaN(price) && price > 0) {
+                groceryList.push({
+                    id: `id_${Date.now()}`,
+                    name: name,
+                    price: price,
+                    quantity: 1.00 
+                });
+                render(); // Re-render grocery list after adding
+                hideModal();
+            } else {
+                alert('Please enter a valid item name and price (must be a positive number).');
+            }
+        };
 
-    <header class="app-header">
-        <select id="currency-selector" class="currency-select" aria-label="Select currency">
-            <option value="USD">USD ($)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-            <option value="PKR">PKR (₨)</option>
-            <option value="JPY">JPY (¥)</option>
-        </select>
-        <div class="header-title">SmartGrocer</div>
-        <button id="view-history-btn" class="control-button" style="width:auto; height: auto; padding: 5px 10px; font-size: 0.9em; color: var(--on-primary-color); border-color: rgba(255,255,255,0.5);">History</button>
-    </header>
+        const handleListClick = (event) => {
+            const target = event.target;
+            // Ensure we are interacting with a grocery item within the groceryItemsView
+            const itemDiv = target.closest('.grocery-item');
+            if (!itemDiv || !groceryItemsView.contains(itemDiv)) return; // Added check for parent
 
-    <main class="main-content" id="grocery-list-container">
-        <p class="empty-state" id="empty-state-message">Your cart is empty.<br>Tap the '+' button to add an item.</p>
+            const itemId = itemDiv.dataset.id;
+            const item = groceryList.find(i => i.id === itemId);
+            if (!item) return;
 
-        <div class="history-section" id="history-section" style="display: none;">
-            <h2>Shopping History</h2>
-            <div id="history-list">
-                <p class="empty-state" id="empty-history-message" style="display: block; padding: 20px 0;">No past shopping trips recorded.</p>
-            </div>
-            <button class="clear-history-btn" id="clear-history-btn">Clear History</button>
-        </div>
-    </main>
+            const quantityStep = 0.5; 
 
-    <button class="fab" id="add-item-btn" aria-label="Add new item">+</button>
-
-    <footer class="app-footer">
-        <div class="total-card">
-            <span>Total Bill:</span>
-            <span class="total-amount" id="total-amount">$0.00</span>
-        </div>
-        <button class="checkout-button" id="checkout-btn">Checkout & Save</button>
-        <div class="ad-banner">
-            [ Simulated Banner Ad ]<br>ca-app-pub-4313544696010088/3719457347
-        </div>
-    </footer>
-
-    <div class="modal-backdrop" id="add-item-modal">
-        <div class="modal-content">
-            <h3>Add New Item</h3>
-            <input type="text" id="item-name-input" placeholder="Item Name (e.g., Milk)" required>
-            <input type="number" id="item-price-input" placeholder="Item Price (e.g., 3.49)" step="0.01" min="0" required>
-            <div class="modal-buttons">
-                <button id="modal-cancel-btn">Cancel</button>
-                <button id="modal-save-btn">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <template id="grocery-item-template">
-        <div class="grocery-item">
-            <div class="item-details">
-                <div class="name"></div>
-                <div class="price"></div>
-            </div>
-            <div class="item-controls">
-                <button class="control-button decrease-qty" aria-label="Decrease quantity">-</button>
-                <span class="quantity"></span>
-                <button class="control-button increase-qty" aria-label="Increase quantity">+</button>
-            </div>
-            <span class="item-subtotal"></span>
-            <button class="delete-button" aria-label="Delete item">×</button>
-        </div>
-    </template>
-
-    <template id="history-item-template">
-        <div class="history-item">
-            <div class="history-details">
-                <div class="history-date"></div>
-                <div class="history-items-list"></div>
-            </div>
-            <div class="history-total"></div>
-        </div>
-    </template>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Elements ---
-            const listContainer = document.getElementById('grocery-list-container');
-            const emptyStateMessage = document.getElementById('empty-state-message');
-            const totalAmountEl = document.getElementById('total-amount');
-            const addItemBtn = document.getElementById('add-item-btn');
-            const itemTemplate = document.getElementById('grocery-item-template');
-            const currencySelector = document.getElementById('currency-selector');
-            const checkoutBtn = document.getElementById('checkout-btn');
-            const viewHistoryBtn = document.getElementById('view-history-btn');
-            const historySection = document.getElementById('history-section');
-            const historyListEl = document.getElementById('history-list');
-            const emptyHistoryMessage = document.getElementById('empty-history-message');
-            const historyItemTemplate = document.getElementById('history-item-template');
-            const clearHistoryBtn = document.getElementById('clear-history-btn');
-
-            // Modal Elements
-            const modal = document.getElementById('add-item-modal');
-            const modalCancelBtn = document.getElementById('modal-cancel-btn');
-            const modalSaveBtn = document.getElementById('modal-save-btn');
-            const itemNameInput = document.getElementById('item-name-input');
-            const itemPriceInput = document.getElementById('item-price-input');
-
-            // --- App State ---
-            let groceryList = [];
-            let shoppingHistory = [];
-            let currentCurrency = localStorage.getItem('smartGrocerCurrency') || 'USD';
-
-            // --- Currency Configuration (Add/Remove as needed) ---
-            const currencySymbols = {
-                'USD': '$',
-                'EUR': '€',
-                'GBP': '£',
-                'PKR': '₨',
-                'JPY': '¥',
-            };
-
-            // --- Core Functions ---
-
-            const saveState = () => {
-                localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
-                localStorage.setItem('smartGrocerHistory', JSON.stringify(shoppingHistory));
-                localStorage.setItem('smartGrocerCurrency', currentCurrency);
-            };
-
-            const loadState = () => {
-                const savedList = localStorage.getItem('smartGrocerList');
-                if (savedList) {
-                    groceryList = JSON.parse(savedList);
+            if (target.matches('.increase-qty')) {
+                item.quantity += quantityStep;
+            } else if (target.matches('.decrease-qty')) {
+                if (item.quantity > quantityStep) { 
+                    item.quantity -= quantityStep;
+                } else if (item.quantity > 0 && item.quantity <= quantityStep) {
+                    if (confirm(`Are you sure you want to remove all ${item.name}?`)) {
+                        groceryList = groceryList.filter(i => i.id !== itemId);
+                    }
                 }
-                const savedHistory = localStorage.getItem('smartGrocerHistory');
-                if (savedHistory) {
-                    shoppingHistory = JSON.parse(savedHistory);
+            } else if (target.matches('.delete-button')) {
+                if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+                    groceryList = groceryList.filter(i => i.id !== itemId);
                 }
-                currencySelector.value = currentCurrency; // Set initial currency in dropdown
-                render();
+            }
+            render(); // Re-render grocery list after quantity change or delete
+        };
+
+        const checkout = () => {
+            if (groceryList.length === 0) {
+                alert('Your cart is empty. Add items before checking out!');
+                return;
+            }
+
+            const totalBill = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            shoppingHistory.push({
+                date: new Date().toISOString(),
+                items: [...groceryList],
+                total: totalBill,
+                currency: currentCurrency
+            });
+
+            groceryList = []; 
+            alert(`Checkout successful! Total: ${formatCurrency(totalBill)}`);
+            
+            // After checkout, always revert to the main cart view and update content
+            toggleHistoryView(false); // Force switch to cart view
+        };
+
+        /**
+         * Manages the visibility of the grocery list view and history view,
+         * along with associated UI controls (FAB, Checkout, Total Card).
+         * @param {boolean|null} showHistory - True to show history, False to show cart. Null to toggle.
+         */
+        const toggleHistoryView = (showHistory = null) => {
+            const currentlyShowingHistory = historySection.style.display === 'block';
+            const willShowHistory = (showHistory === true) || (showHistory === null && !currentlyShowingHistory);
+            
+            if (willShowHistory) {
+                // Switching to History View
+                historySection.style.display = 'block';
+                groceryItemsView.style.display = 'none'; // Hide grocery list content
+                addItemBtn.style.display = 'none'; // Hide FAB
+                checkoutBtn.style.display = 'none'; // Hide Checkout button
+                totalAmountEl.closest('.total-card').style.display = 'none'; // Hide Total Card
+                viewHistoryBtn.textContent = 'Back to Cart';
+                renderHistory(); // Ensure history content is up-to-date
+            } else {
+                // Switching to Cart View
+                historySection.style.display = 'none';
+                groceryItemsView.style.display = 'block'; // Show grocery list content
+                addItemBtn.style.display = 'flex'; // Show FAB
+                checkoutBtn.style.display = 'block'; // Show Checkout button
+                totalAmountEl.closest('.total-card').style.display = 'flex'; // Show Total Card
+                viewHistoryBtn.textContent = 'History';
+                render(); // Ensure grocery list content is up-to-date
+            }
+        };
+
+        const clearAllHistory = () => {
+            if (confirm('Are you sure you want to clear all shopping history? This cannot be undone.')) {
+                shoppingHistory = [];
                 renderHistory();
-            };
+            }
+        };
 
-            const formatCurrency = (amount) => {
-                const symbol = currencySymbols[currentCurrency] || '$'; // Default to $ if not found
-                return `${symbol}${amount.toFixed(2)}`;
-            };
+        // --- Event Listeners ---
+        addItemBtn.addEventListener('click', showModal);
+        modalCancelBtn.addEventListener('click', hideModal);
+        modalSaveBtn.addEventListener('click', addItem);
+        // Event listener for list clicks should now be on groceryItemsView
+        groceryItemsView.addEventListener('click', handleListClick); 
+        currencySelector.addEventListener('change', (event) => {
+            currentCurrency = event.target.value;
+            // Only re-render the active view to update currency display
+            if (groceryItemsView.style.display === 'block') {
+                render(); 
+            } else if (historySection.style.display === 'block') {
+                renderHistory();
+            }
+        });
+        checkoutBtn.addEventListener('click', checkout);
+        // Pass 'null' to toggleHistoryView to allow it to auto-toggle
+        viewHistoryBtn.addEventListener('click', () => toggleHistoryView(null)); 
+        clearHistoryBtn.addEventListener('click', clearAllHistory);
 
-            const calculateTotal = () => {
-                const total = groceryList.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                totalAmountEl.textContent = formatCurrency(total);
-            };
+        // Close modal if backdrop is clicked
+        modal.addEventListener('click', (event) => {
+            if(event.target === modal) {
+                hideModal();
+            }
+        });
 
-            const render = () => {
-                // Clear the current list before re-drawing
-                listContainer.innerHTML = ''; // Clear existing content including history
-                if (groceryList.length === 0) {
-                    listContainer.appendChild(emptyStateMessage);
-                    emptyStateMessage.style.display = 'block';
-                } else {
-                    emptyStateMessage.style.display = 'none';
-                    groceryList.forEach(item => {
-                        const itemNode = document.importNode(itemTemplate.content, true);
-                        const itemDiv = itemNode.querySelector('.grocery-item');
-                        itemDiv.dataset.id = item.id;
-
-                        itemNode.querySelector('.name').textContent = item.name;
-                        itemNode.querySelector('.price').textContent = `${formatCurrency(item.price)} each`;
-                        // Ensure quantity displays decimals
-                        itemNode.querySelector('.quantity').textContent = parseFloat(item.quantity).toFixed(2);
-                        itemNode.querySelector('.item-subtotal').textContent = formatCurrency(item.price * item.quantity);
-
-                        listContainer.appendChild(itemNode);
-                    });
-                }
-                // Always append history section, its display is controlled by CSS
-                listContainer.appendChild(historySection);
-                calculateTotal();
-                saveState();
-            };
-
-            const renderHistory = () => {
-                historyListEl.innerHTML = '';
-                if (shoppingHistory.length === 0) {
-                    emptyHistoryMessage.style.display = 'block';
-                } else {
-                    emptyHistoryMessage.style.display = 'none';
-                    // Sort history by date, newest first
-                    const sortedHistory = [...shoppingHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
-                    sortedHistory.forEach(record => {
-                        const historyNode = document.importNode(historyItemTemplate.content, true);
-                        const date = new Date(record.date).toLocaleDateString();
-                        historyNode.querySelector('.history-date').textContent = date;
-                        
-                        // Display items bought in this trip
-                        const itemsBought = record.items.map(item => `${item.name} (${parseFloat(item.quantity).toFixed(2)})`).join(', ');
-                        historyNode.querySelector('.history-items-list').textContent = `Items: ${itemsBought}`;
-
-                        historyNode.querySelector('.history-total').textContent = formatCurrency(record.total);
-                        historyListEl.appendChild(historyNode);
-                    });
-                }
-                saveState();
-           
+        // --- Initial Application Load ---
+        loadState();
+    });
+</script>
