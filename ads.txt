@@ -1,0 +1,23 @@
+# Google Ads.txt file for AdProfitX Compressor
+# This file should be placed in the root directory of your domain
+# Replace the placeholder values with your actual Google AdSense information
+
+# Format: domain.com, publisher-id, relationship-type, certification-authority-id
+# Example: google.com, pub-4313544696010088, DIRECT, f08c47fec0942fa0
+
+# Google AdSense - Your publisher ID
+google.com, pub-4313544696010088, DIRECT, f08c47fec0942fa0
+
+# Instructions for manual setup:
+# 1. Replace 'pub-XXXXXXXXXXXXXXXXX' with your actual Google AdSense publisher ID
+# 2. Uncomment the line above by removing the '#' at the beginning
+# 3. Upload this file to the root directory of your website
+# 4. Verify the ads.txt file is accessible at: https://https://adprofitx-compressor.vercel.app/
+
+# Additional ad networks can be added below following the same format
+# For example, if you use other ad networks:
+# adnxs.com, 12345, RESELLER, f08c47fec0942fa0
+# rubiconproject.com, 67890, RESELLER, 0bfd66d529a55807
+
+# For more information about ads.txt, visit:
+# https://iabtechlab.com/ads-txt/
