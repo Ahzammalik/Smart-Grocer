@@ -257,4 +257,4 @@ fun BannerAd() {
         }
     )
 }
-
+adUnitId = "ca-app-pub-4313544696010088/7445436593"
