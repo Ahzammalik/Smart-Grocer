@@ -23,11 +23,13 @@ dependencies {
     // ML Kit Barcode Scanning (for camera feature)
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
 
-    // CameraX libraries for live camera preview
-    implementation("androidx.camera:camera-core:1.3.3")
-    implementation("androidx.camera:camera-camera2:1.3.3")
-    implementation("androidx.camera:camera-lifecycle:1.3.3")
-    implementation("androidx.camera:camera-view:1.3.3")
+    // CameraX libraries for live camera preview (Updated versions)
+    val cameraxVersion = "1.3.4"
+    implementation("androidx.camera:camera-core:${cameraxVersion}")
+    implementation("androidx.camera:camera-camera2:${cameraxVersion}")
+    implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
+    implementation("androidx.camera:camera-view:${cameraxVersion}")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
