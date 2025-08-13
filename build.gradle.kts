@@ -39,3 +39,27 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+android {
+    namespace = "com.yourcompany.smartgrocer"
+    compileSdk = 34 // UPDATE THIS
+
+    defaultConfig {
+        applicationId = "com.yourcompany.smartgrocer"
+        minSdk = 24
+        targetSdk = 34 // UPDATE THIS
+        //...
+    }
+    //...
+}
+android {
+    namespace = "com.adprofitx.smartgrocer"
+    compileSdk = 34 // UPDATE THIS
+
+    defaultConfig {
+        applicationId = "com.adprofitx.smartgrocer"
+        minSdk = 24
+        targetSdk = 34 // UPDATE THIS
+        //...
+    }
+    //...
+}
