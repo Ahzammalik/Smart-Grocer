@@ -6,7 +6,6 @@
     <title>SmartGrocer - Web</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* [PREVIOUS CSS STYLES ARE THE SAME... NO CHANGES NEEDED HERE, BUT INCLUDED FOR COMPLETENESS] */
         :root {
             --primary-color: #00796B; /* Teal */
             --primary-dark: #004D40;
@@ -43,7 +42,7 @@
         .total-card { background: linear-gradient(45deg, var(--accent-color), #FFC107); color: var(--text-color); padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; box-shadow: 0 6px 20px rgba(255, 171, 0, 0.4); }
         .total-card span:first-child { font-size: 1.4em; } .total-card span:last-child { font-size: 1.8em; font-weight: 800; }
         .footer-actions { display: flex; justify-content: center; padding-bottom: 20px; gap: 20px; }
-        .action-button { background-color: var(--primary-color); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.2s; box-shadow: 0 4px 12px var(--shadow-color); }
+        .action-button { background-color: var(--primary-color); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.2s; box-shadow: 0 4px 12px var(--shadow-color); display: flex; align-items: center; justify-content: center; }
         .action-button:hover { background-color: var(--primary-dark); transform: translateY(-3px); }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
         .modal-content { background-color: var(--card-background); padding: 30px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 400px; animation: fadeIn 0.3s ease-out; }
@@ -90,41 +89,12 @@
         </div>
     </main>
     
-    <div id="add-item-modal" class="modal">
-        <div class="modal-content">
-            <h2>Add New Item</h2>
-            <div class="input-group"><label for="item-name-input">Item Name:</label><input type="text" id="item-name-input" placeholder="e.g., Organic Apples" required><div class="error-message" id="name-error"></div></div>
-            <div class="input-group"><label for="item-price-input">Item Price:</label><input type="number" id="item-price-input" step="0.01" min="0" placeholder="e.g., 1.99" required><div class="error-message" id="price-error"></div></div>
-            <div class="modal-buttons"><button id="modal-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button><button id="modal-save-btn" class="action-button">Add Item</button></div>
-        </div>
-    </div>
-    
-    <div id="sign-in-modal" class="modal">
-        <div class="modal-content">
-            <h2>Welcome Back!</h2>
-            <div class="input-group"><label for="email-input">Email:</label><input type="email" id="email-input" placeholder="you@example.com" required></div>
-            <div class="input-group"><label for="password-input">Password:</label><input type="password" id="password-input" placeholder="••••••••" required></div>
-            <div class="modal-buttons">
-                <button id="sign-in-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button>
-                <button id="sign-in-submit-btn" class="action-button">Sign In</button>
-            </div>
-            <p style="text-align: center; margin-top: 20px; font-size: 0.9em;">New here? <a href="#" id="register-link">Create an account</a></p>
-        </div>
-    </div>
-
-    <template id="grocery-item-template">
-        <div class="grocery-item"><div class="item-info"><div class="name"></div><div class="price"></div></div><div class="quantity-controls"><button class="quantity-btn decrease-qty">-</button><span class="quantity"></span><button class="quantity-btn increase-qty">+</button></div><span class="item-subtotal"></span><button class="delete-button">&times;</button></div>
-    </template>
-    <template id="history-item-template">
-        <div class="history-item"><div class="history-date"></div><div class="history-items-list"></div><div class="history-total"></div></div>
-    </template>
-    <template id="empty-cart-template">
-        <div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 18C17 18.55 16.55 19 16 19C15.45 19 15 18.55 15 18C15 17.45 15.45 17 16 17C16.55 17 17 17.45 17 18ZM1 4H3L6.61 11.59L5.25 14.04C5.11 14.29 5 14.62 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.29 15 7.17 14.89 7.17 14.75L7.2 14.63L8.1 13H15.55C16.3 13 16.96 12.59 17.3 11.97L20.88 5.48C20.96 5.34 21 5.17 21 5C21 4.45 20.55 4 20 4H6.21L5.27 2H3C2.45 2 2 2.45 2 3C2 3.55 2.45 4 3 4ZM9 18C9 18.55 8.55 19 8 19C7.45 19 7 18.55 7 18C7 17.45 7.45 17 8 17C8.55 17 9 17.45 9 18Z"/></svg><span>Your cart is empty.</span></div>
-    </template>
-    <template id="empty-history-template">
-        <div class="empty-state"><span>No shopping history found.</span></div>
-    </template>
-
+    <div id="add-item-modal" class="modal"><div class="modal-content"><h2>Add New Item</h2><div class="input-group"><label for="item-name-input">Item Name:</label><input type="text" id="item-name-input" placeholder="e.g., Organic Apples" required><div class="error-message" id="name-error"></div></div><div class="input-group"><label for="item-price-input">Item Price:</label><input type="number" id="item-price-input" step="0.01" min="0" placeholder="e.g., 1.99" required><div class="error-message" id="price-error"></div></div><div class="modal-buttons"><button id="modal-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button><button id="modal-save-btn" class="action-button">Add Item</button></div></div></div>
+    <div id="sign-in-modal" class="modal"><div class="modal-content"><h2>Welcome Back!</h2><div class="input-group"><label for="email-input">Email:</label><input type="email" id="email-input" placeholder="you@example.com" required></div><div class="input-group"><label for="password-input">Password:</label><input type="password" id="password-input" placeholder="••••••••" required></div><div class="modal-buttons"><button id="sign-in-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button><button id="sign-in-submit-btn" class="action-button">Sign In</button></div><p style="text-align: center; margin-top: 20px; font-size: 0.9em;">New here? <a href="#" id="register-link">Create an account</a></p></div></div>
+    <template id="grocery-item-template"><div class="grocery-item"><div class="item-info"><div class="name"></div><div class="price"></div></div><div class="quantity-controls"><button class="quantity-btn decrease-qty">-</button><span class="quantity"></span><button class="quantity-btn increase-qty">+</button></div><span class="item-subtotal"></span><button class="delete-button">&times;</button></div></template>
+    <template id="history-item-template"><div class="history-item"><div class="history-date"></div><div class="history-items-list"></div><div class="history-total"></div></div></template>
+    <template id="empty-cart-template"><div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 18C17 18.55 16.55 19 16 19C15.45 19 15 18.55 15 18C15 17.45 15.45 17 16 17C16.55 17 17 17.45 17 18ZM1 4H3L6.61 11.59L5.25 14.04C5.11 14.29 5 14.62 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.29 15 7.17 14.89 7.17 14.75L7.2 14.63L8.1 13H15.55C16.3 13 16.96 12.59 17.3 11.97L20.88 5.48C20.96 5.34 21 5.17 21 5C21 4.45 20.55 4 20 4H6.21L5.27 2H3C2.45 2 2 2.45 2 3C2 3.55 2.45 4 3 4ZM9 18C9 18.55 8.55 19 8 19C7.45 19 7 18.55 7 18C7 17.45 7.45 17 8 17C8.55 17 9 17.45 9 18Z"/></svg><span>Your cart is empty.</span></div></template>
+    <template id="empty-history-template"><div class="empty-state"><span>No shopping history found.</span></div></template>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -132,7 +102,6 @@
             const groceryItemsView = document.getElementById('grocery-items-view');
             const totalAmountEl = document.getElementById('total-amount');
             const totalCard = document.getElementById('total-card');
-            const footerActions = document.getElementById('footer-actions');
             
             const addItemBtn = document.getElementById('add-item-btn');
             const checkoutBtn = document.getElementById('checkout-btn');
@@ -172,17 +141,7 @@
                 
                 const savedHistory = localStorage.getItem('smartGrocerHistory_v2');
                 shoppingHistory = savedHistory ? JSON.parse(savedHistory) : [];
-
-                // TODO: Add Firebase logic here
-                // if (isUserLoggedIn()) {
-                //   fetchDataFromFirestore().then(data => {
-                //      groceryList = data.list;
-                //      shoppingHistory = data.history;
-                //      render();
-                //   });
-                // } else {
-                   render();
-                // }
+                render();
             };
 
             const calculateTotal = () => {
@@ -226,7 +185,7 @@
                     historySection.appendChild(emptyHistoryTemplate.content.cloneNode(true));
                 } else {
                     const fragment = document.createDocumentFragment();
-                    [...shoppingHistory].reverse().forEach(record => { // Show newest first
+                    [...shoppingHistory].reverse().forEach(record => {
                         const node = historyItemTemplate.content.cloneNode(true);
                         const date = new Date(record.date).toLocaleString();
                         node.querySelector('.history-date').textContent = date;
@@ -244,22 +203,27 @@
             };
             
             // --- UI Interaction Functions ---
-            const toggleHistoryView = (showHistory) => {
-                isHistoryView = showHistory;
+            // UPDATED: Simpler and more reliable toggle function
+            const toggleHistoryView = () => {
+                isHistoryView = !isHistoryView; // Toggle the state between true and false
+
+                // Show/hide main sections based on the state
                 groceryItemsView.style.display = isHistoryView ? 'none' : 'block';
                 historySection.style.display = isHistoryView ? 'block' : 'none';
                 totalCard.style.display = isHistoryView ? 'none' : 'flex';
-                footerActions.style.display = isHistoryView ? 'none' : 'flex';
-                
+
+                // Show/hide specific footer buttons
+                checkoutBtn.style.display = isHistoryView ? 'none' : 'flex';
+                addItemBtn.style.display = isHistoryView ? 'none' : 'flex';
+
+                // Change the "History" button text to "Back to Cart" and vice-versa
                 if (isHistoryView) {
-                    // Create a back button when in history view
-                    const backButton = document.createElement('button');
-                    backButton.textContent = 'Back to Cart';
-                    backButton.className = 'action-button';
-                    backButton.onclick = () => toggleHistoryView(false);
-                    historySection.appendChild(backButton);
+                    viewHistoryBtn.textContent = 'Back to Cart';
+                } else {
+                    viewHistoryBtn.textContent = 'History';
                 }
-                render();
+                
+                render(); // Re-render the correct view
             };
 
             const checkout = () => {
@@ -271,28 +235,23 @@
                     totalInCents: totalInCents
                 });
                 groceryList = [];
-                // TODO: Add Firebase logic here
-                // if (isUserLoggedIn()) { syncDataToFirestore(); }
                 render();
             };
 
             const clearHistory = () => {
                 if (confirm('Are you sure you want to clear all history?')) {
                     shoppingHistory = [];
-                    // TODO: Add Firebase logic here
-                    // if (isUserLoggedIn()) { syncDataToFirestore(); }
                     render();
                 }
             };
             
-            // --- Event Handlers ---
+            // --- Event Handlers (Unchanged) ---
             const handleListClick = (event) => {
                 const itemDiv = event.target.closest('.grocery-item');
                 if (!itemDiv) return;
                 const itemId = itemDiv.dataset.id;
                 const item = groceryList.find(i => i.id === itemId);
                 if (!item) return;
-
                 if (event.target.matches('.increase-qty')) item.quantity++;
                 else if (event.target.matches('.decrease-qty')) {
                     if (item.quantity > 1) item.quantity--;
@@ -303,15 +262,12 @@
                 render();
             };
             
-            // --- Modal Logic ---
             const setupModal = (modal, openBtn, cancelBtn, saveBtn, saveFn) => {
                 const nameInput = modal.querySelector('#item-name-input');
                 const priceInput = modal.querySelector('#item-price-input');
-                
                 openBtn.addEventListener('click', () => modal.style.display = 'flex');
                 cancelBtn.addEventListener('click', () => modal.style.display = 'none');
                 modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
-                
                 saveBtn.addEventListener('click', () => {
                      const name = nameInput.value.trim();
                      const price = parseFloat(priceInput.value);
@@ -323,31 +279,17 @@
                 });
             };
             
-            // Initialize Add Item Modal
-            setupModal(
-                document.getElementById('add-item-modal'),
-                addItemBtn,
-                document.getElementById('modal-cancel-btn'),
-                document.getElementById('modal-save-btn')
-            );
-
-            // Initialize Sign In Modal
+            setupModal(addItemModal, addItemBtn, document.getElementById('modal-cancel-btn'), document.getElementById('modal-save-btn'));
             signInBtn.addEventListener('click', () => signInModal.style.display = 'flex');
             document.getElementById('sign-in-cancel-btn').addEventListener('click', () => signInModal.style.display = 'none');
             signInModal.addEventListener('click', e => { if (e.target === signInModal) signInModal.style.display = 'none'; });
-            document.getElementById('sign-in-submit-btn').addEventListener('click', () => {
-                // TODO: Add Firebase Authentication logic here
-                // const email = document.getElementById('email-input').value;
-                // const password = document.getElementById('password-input').value;
-                // firebase.auth().signInWithEmailAndPassword(email, password)...
-                alert('Sign-in functionality requires a backend service like Firebase.');
-                signInModal.style.display = 'none';
-            });
+            document.getElementById('sign-in-submit-btn').addEventListener('click', () => { alert('Sign-in functionality requires a backend service like Firebase.'); signInModal.style.display = 'none'; });
             
             // --- Global Event Listeners ---
             groceryItemsView.addEventListener('click', handleListClick);
             checkoutBtn.addEventListener('click', checkout);
-            viewHistoryBtn.addEventListener('click', () => toggleHistoryView(true));
+            // UPDATED: The history button now calls the single toggle function
+            viewHistoryBtn.addEventListener('click', toggleHistoryView);
 
             // --- Initial Load ---
             loadState();
