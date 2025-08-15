@@ -6,6 +6,7 @@
     <title>SmartGrocer - Web</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* [PREVIOUS CSS STYLES ARE THE SAME... NO CHANGES NEEDED HERE, BUT INCLUDED FOR COMPLETENESS] */
         :root {
             --primary-color: #00796B; /* Teal */
             --primary-dark: #004D40;
@@ -18,382 +19,335 @@
             --shadow-color: rgba(0, 0, 0, 0.1);
             --danger-color: #D32F2F;
         }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            padding: 15px 30px;
-            box-shadow: 0 4px 12px var(--shadow-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            max-width: 800px;
-            margin: 30px auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        #grocery-list-container {
-            background-color: var(--card-background);
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 400px;
-        }
-
-        #grocery-items-view {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: var(--light-text-color);
-            padding: 80px 20px;
-            font-size: 1.2em;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            opacity: 0.6;
-        }
-
-        .grocery-item {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-        }
-
-        .grocery-item:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            z-index: 10;
-            border-radius: 8px;
-        }
-
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--background-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: linear-gradient(90deg, var(--primary-color), var(--primary-dark)); color: white; padding: 15px 30px; box-shadow: 0 4px 12px var(--shadow-color); display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        header h1 { margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: 1px; }
+        .header-actions button { background: none; border: 1px solid rgba(255,255,255,0.5); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: background-color 0.2s; }
+        .header-actions button:hover { background-color: rgba(255,255,255,0.2); }
+        .main-content { flex-grow: 1; padding: 20px; max-width: 800px; margin: 30px auto; display: flex; flex-direction: column; gap: 20px; }
+        #grocery-list-container { background-color: var(--card-background); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); overflow: hidden; display: flex; flex-direction: column; min-height: 400px; }
+        #grocery-items-view, #history-section { flex-grow: 1; overflow-y: auto; padding: 10px; }
+        #history-section { display: none; } /* Hidden by default */
+        .empty-state { text-align: center; color: var(--light-text-color); padding: 80px 20px; font-size: 1.2em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
+        .empty-state svg { width: 80px; height: 80px; opacity: 0.6; }
+        .grocery-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border-color); transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
+        .grocery-item:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; border-radius: 8px; }
         .grocery-item:last-child { border-bottom: none; }
-        .item-info { flex-grow: 1; }
-        .item-info .name { font-weight: 600; font-size: 1.1em; }
-        .item-info .price { font-size: 0.9em; color: var(--light-text-color); }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .quantity-btn {
-            background-color: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--primary-color);
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5em;
-            font-weight: 300;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s, color 0.2s;
-        }
+        .item-info { flex-grow: 1; } .item-info .name { font-weight: 600; font-size: 1.1em; } .item-info .price { font-size: 0.9em; color: var(--light-text-color); }
+        .quantity-controls { display: flex; align-items: center; gap: 10px; }
+        .quantity-btn { background-color: transparent; border: 1px solid var(--border-color); color: var(--primary-color); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.5em; font-weight: 300; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, color 0.2s; }
         .quantity-btn:hover { background-color: var(--primary-color); color: white; }
-        .quantity { font-weight: 700; font-size: 1.2em; }
-        .item-subtotal { font-weight: 700; margin: 0 20px; min-width: 70px; text-align: right; }
-        .delete-button {
-            background: none; border: none; color: var(--danger-color);
-            font-size: 1.5em; margin-left: 15px; cursor: pointer; transition: transform 0.2s ease;
-        }
+        .quantity { font-weight: 700; font-size: 1.2em; } .item-subtotal { font-weight: 700; margin: 0 20px; min-width: 70px; text-align: right; }
+        .delete-button { background: none; border: none; color: var(--danger-color); font-size: 1.5em; margin-left: 15px; cursor: pointer; transition: transform 0.2s ease; }
         .delete-button:hover { transform: scale(1.2); }
-
-        .total-card {
-            background: linear-gradient(45deg, var(--accent-color), #FFC107);
-            color: var(--text-color);
-            padding: 20px 30px;
-            border-radius: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 700;
-            box-shadow: 0 6px 20px rgba(255, 171, 0, 0.4);
-        }
-        .total-card span:first-child { font-size: 1.4em; }
-        .total-card span:last-child { font-size: 1.8em; font-weight: 800; }
-
-        .footer-actions {
-            display: flex;
-            justify-content: center;
-            padding-bottom: 20px;
-            gap: 20px;
-        }
-
-        .action-button {
-            background-color: var(--primary-color);
-            color: white; border: none; padding: 15px 30px; border-radius: 30px;
-            font-size: 1.1em; font-weight: 600; cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 4px 12px var(--shadow-color);
-        }
+        .total-card { background: linear-gradient(45deg, var(--accent-color), #FFC107); color: var(--text-color); padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; box-shadow: 0 6px 20px rgba(255, 171, 0, 0.4); }
+        .total-card span:first-child { font-size: 1.4em; } .total-card span:last-child { font-size: 1.8em; font-weight: 800; }
+        .footer-actions { display: flex; justify-content: center; padding-bottom: 20px; gap: 20px; }
+        .action-button { background-color: var(--primary-color); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.2s; box-shadow: 0 4px 12px var(--shadow-color); }
         .action-button:hover { background-color: var(--primary-dark); transform: translateY(-3px); }
-
-        /* Modal Styles */
-        .modal {
-            display: none; position: fixed; z-index: 1000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background-color: var(--card-background); padding: 30px;
-            border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            width: 90%; max-width: 400px;
-            animation: fadeIn 0.3s ease-out;
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
+        .modal-content { background-color: var(--card-background); padding: 30px; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 400px; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
         .modal-content h2 { margin-top: 0; color: var(--primary-color); text-align: center; }
         .input-group { position: relative; margin-bottom: 25px; }
-        .input-group input {
-            width: 100%; padding: 12px 10px; border: 1px solid var(--border-color);
-            border-radius: 8px; font-size: 1em; box-sizing: border-box;
-        }
-        .input-group .error-message {
-            color: var(--danger-color);
-            font-size: 0.8em;
-            display: none; /* Hidden by default */
-            padding-left: 5px;
-            padding-top: 3px;
-        }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; }
+        .input-group input { width: 100%; padding: 12px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1em; box-sizing: border-box; }
+        .input-group .error-message { color: var(--danger-color); font-size: 0.8em; display: none; padding-left: 5px; padding-top: 3px; }
         .modal-buttons { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
+        /* History Styles */
+        .history-item { background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary-color); }
+        .history-date { font-weight: 700; color: var(--primary-dark); font-size: 1.1em; }
+        .history-items-list { font-size: 0.95em; color: var(--light-text-color); margin: 8px 0; }
+        .history-total { font-weight: 700; text-align: right; }
+        .clear-history-btn { background-color: var(--danger-color) !important; margin: 10px auto; display: block; }
     </style>
 </head>
 <body>
-    <header><h1>SmartGrocer</h1></header>
+    <header>
+        <h1>SmartGrocer</h1>
+        <div class="header-actions">
+            <button id="sign-in-btn">Sign In</button>
+        </div>
+    </header>
 
     <main class="main-content">
         <div id="grocery-list-container">
             <div id="grocery-items-view">
-                <div class="empty-state" id="empty-state-message">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 18C17 18.55 16.55 19 16 19C15.45 19 15 18.55 15 18C15 17.45 15.45 17 16 17C16.55 17 17 17.45 17 18ZM1 4H3L6.61 11.59L5.25 14.04C5.11 14.29 5 14.62 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.29 15 7.17 14.89 7.17 14.75L7.2 14.63L8.1 13H15.55C16.3 13 16.96 12.59 17.3 11.97L20.88 5.48C20.96 5.34 21 5.17 21 5C21 4.45 20.55 4 20 4H6.21L5.27 2H3C2.45 2 2 2.45 2 3C2 3.55 2.45 4 3 4ZM9 18C9 18.55 8.55 19 8 19C7.45 19 7 18.55 7 18C7 17.45 7.45 17 8 17C8.55 17 9 17.45 9 18Z"/></svg>
-                    <span>Your cart is empty.</span>
                 </div>
-            </div>
+            <div id="history-section">
+                </div>
         </div>
         
-        <div class="total-card">
+        <div class="total-card" id="total-card">
             <span>Total:</span>
             <span id="total-amount">$0.00</span>
         </div>
 
-        <div class="footer-actions">
-            <button id="add-item-btn" class="action-button">Add New Item</button>
+        <div class="footer-actions" id="footer-actions">
+            <button id="checkout-btn" class="action-button">Checkout & Save</button>
+            <button id="add-item-btn" class="action-button" style="background-color: var(--accent-color); color: var(--text-color);">Add Item</button>
+            <button id="view-history-btn" class="action-button">History</button>
         </div>
     </main>
-
+    
     <div id="add-item-modal" class="modal">
         <div class="modal-content">
             <h2>Add New Item</h2>
-            <div class="input-group">
-                <label for="item-name-input">Item Name:</label>
-                <input type="text" id="item-name-input" placeholder="e.g., Organic Apples" required>
-                <div class="error-message" id="name-error"></div>
-            </div>
-            <div class="input-group">
-                <label for="item-price-input">Item Price:</label>
-                <input type="number" id="item-price-input" step="0.01" min="0" placeholder="e.g., 1.99" required>
-                <div class="error-message" id="price-error"></div>
-            </div>
+            <div class="input-group"><label for="item-name-input">Item Name:</label><input type="text" id="item-name-input" placeholder="e.g., Organic Apples" required><div class="error-message" id="name-error"></div></div>
+            <div class="input-group"><label for="item-price-input">Item Price:</label><input type="number" id="item-price-input" step="0.01" min="0" placeholder="e.g., 1.99" required><div class="error-message" id="price-error"></div></div>
+            <div class="modal-buttons"><button id="modal-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button><button id="modal-save-btn" class="action-button">Add Item</button></div>
+        </div>
+    </div>
+    
+    <div id="sign-in-modal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome Back!</h2>
+            <div class="input-group"><label for="email-input">Email:</label><input type="email" id="email-input" placeholder="you@example.com" required></div>
+            <div class="input-group"><label for="password-input">Password:</label><input type="password" id="password-input" placeholder="••••••••" required></div>
             <div class="modal-buttons">
-                <button id="modal-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button>
-                <button id="modal-save-btn" class="action-button">Add Item</button>
+                <button id="sign-in-cancel-btn" class="action-button" style="background-color: var(--light-text-color);">Cancel</button>
+                <button id="sign-in-submit-btn" class="action-button">Sign In</button>
             </div>
+            <p style="text-align: center; margin-top: 20px; font-size: 0.9em;">New here? <a href="#" id="register-link">Create an account</a></p>
         </div>
     </div>
 
     <template id="grocery-item-template">
-        <div class="grocery-item">
-            <div class="item-info">
-                <div class="name"></div>
-                <div class="price"></div>
-            </div>
-            <div class="quantity-controls">
-                <button class="quantity-btn decrease-qty">-</button>
-                <span class="quantity"></span>
-                <button class="quantity-btn increase-qty">+</button>
-            </div>
-            <span class="item-subtotal"></span>
-            <button class="delete-button">&times;</button>
-        </div>
+        <div class="grocery-item"><div class="item-info"><div class="name"></div><div class="price"></div></div><div class="quantity-controls"><button class="quantity-btn decrease-qty">-</button><span class="quantity"></span><button class="quantity-btn increase-qty">+</button></div><span class="item-subtotal"></span><button class="delete-button">&times;</button></div>
     </template>
+    <template id="history-item-template">
+        <div class="history-item"><div class="history-date"></div><div class="history-items-list"></div><div class="history-total"></div></div>
+    </template>
+    <template id="empty-cart-template">
+        <div class="empty-state"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 18C17 18.55 16.55 19 16 19C15.45 19 15 18.55 15 18C15 17.45 15.45 17 16 17C16.55 17 17 17.45 17 18ZM1 4H3L6.61 11.59L5.25 14.04C5.11 14.29 5 14.62 5 15C5 16.1 5.9 17 7 17H19V15H7.42C7.29 15 7.17 14.89 7.17 14.75L7.2 14.63L8.1 13H15.55C16.3 13 16.96 12.59 17.3 11.97L20.88 5.48C20.96 5.34 21 5.17 21 5C21 4.45 20.55 4 20 4H6.21L5.27 2H3C2.45 2 2 2.45 2 3C2 3.55 2.45 4 3 4ZM9 18C9 18.55 8.55 19 8 19C7.45 19 7 18.55 7 18C7 17.45 7.45 17 8 17C8.55 17 9 17.45 9 18Z"/></svg><span>Your cart is empty.</span></div>
+    </template>
+    <template id="empty-history-template">
+        <div class="empty-state"><span>No shopping history found.</span></div>
+    </template>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- DOM Elements ---
             const groceryItemsView = document.getElementById('grocery-items-view');
-            const emptyStateMessage = document.getElementById('empty-state-message');
             const totalAmountEl = document.getElementById('total-amount');
-            const addItemBtn = document.getElementById('add-item-btn');
-            const itemTemplate = document.getElementById('grocery-item-template');
+            const totalCard = document.getElementById('total-card');
+            const footerActions = document.getElementById('footer-actions');
             
-            // Modal Elements
-            const modal = document.getElementById('add-item-modal');
-            const modalCancelBtn = document.getElementById('modal-cancel-btn');
-            const modalSaveBtn = document.getElementById('modal-save-btn');
-            const itemNameInput = document.getElementById('item-name-input');
-            const itemPriceInput = document.getElementById('item-price-input');
-            const nameError = document.getElementById('name-error');
-            const priceError = document.getElementById('price-error');
+            const addItemBtn = document.getElementById('add-item-btn');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const viewHistoryBtn = document.getElementById('view-history-btn');
+            
+            const historySection = document.getElementById('history-section');
+            const signInBtn = document.getElementById('sign-in-btn');
 
+            // --- Templates ---
+            const itemTemplate = document.getElementById('grocery-item-template');
+            const historyItemTemplate = document.getElementById('history-item-template');
+            const emptyCartTemplate = document.getElementById('empty-cart-template');
+            const emptyHistoryTemplate = document.getElementById('empty-history-template');
+
+            // --- Modals ---
+            const addItemModal = document.getElementById('add-item-modal');
+            const signInModal = document.getElementById('sign-in-modal');
+            
             // --- App State ---
             let groceryList = [];
-
+            let shoppingHistory = [];
+            let isHistoryView = false;
+            
             // --- Utility Functions ---
             const generateUUID = () => ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-            
-            // UPDATED: Use integers (cents) for currency to avoid floating point issues
             const formatCurrency = (amountInCents) => `$${(amountInCents / 100).toFixed(2)}`;
 
-            // --- Core Functions ---
-            const saveState = () => localStorage.setItem('smartGrocerList', JSON.stringify(groceryList));
+            // --- State & Data Functions ---
+            const saveState = () => {
+                localStorage.setItem('smartGrocerList_v2', JSON.stringify(groceryList));
+                localStorage.setItem('smartGrocerHistory_v2', JSON.stringify(shoppingHistory));
+            };
             
             const loadState = () => {
-                const savedList = localStorage.getItem('smartGrocerList');
+                const savedList = localStorage.getItem('smartGrocerList_v2');
                 groceryList = savedList ? JSON.parse(savedList) : [];
-                render();
+                
+                const savedHistory = localStorage.getItem('smartGrocerHistory_v2');
+                shoppingHistory = savedHistory ? JSON.parse(savedHistory) : [];
+
+                // TODO: Add Firebase logic here
+                // if (isUserLoggedIn()) {
+                //   fetchDataFromFirestore().then(data => {
+                //      groceryList = data.list;
+                //      shoppingHistory = data.history;
+                //      render();
+                //   });
+                // } else {
+                   render();
+                // }
             };
 
             const calculateTotal = () => {
                 const totalInCents = groceryList.reduce((sum, item) => sum + (item.priceInCents * item.quantity), 0);
                 totalAmountEl.textContent = formatCurrency(totalInCents);
             };
-
+            
+            // --- Rendering Functions ---
             const render = () => {
+                if (isHistoryView) {
+                    renderHistory();
+                } else {
+                    renderGroceryList();
+                }
+                saveState();
+            };
+
+            const renderGroceryList = () => {
                 groceryItemsView.innerHTML = '';
                 if (groceryList.length === 0) {
-                    groceryItemsView.appendChild(emptyStateMessage);
+                    groceryItemsView.appendChild(emptyCartTemplate.content.cloneNode(true));
                 } else {
                     const fragment = document.createDocumentFragment();
                     groceryList.forEach(item => {
-                        const itemNode = document.importNode(itemTemplate.content, true);
-                        const itemDiv = itemNode.querySelector('.grocery-item');
-                        itemDiv.dataset.id = item.id;
-                        itemNode.querySelector('.name').textContent = item.name;
-                        itemNode.querySelector('.price').textContent = `${formatCurrency(item.priceInCents)} each`;
-                        itemNode.querySelector('.quantity').textContent = item.quantity;
-                        itemNode.querySelector('.item-subtotal').textContent = formatCurrency(item.priceInCents * item.quantity);
-                        fragment.appendChild(itemNode);
+                        const node = itemTemplate.content.cloneNode(true);
+                        node.querySelector('.grocery-item').dataset.id = item.id;
+                        node.querySelector('.name').textContent = item.name;
+                        node.querySelector('.price').textContent = `${formatCurrency(item.priceInCents)} each`;
+                        node.querySelector('.quantity').textContent = item.quantity;
+                        node.querySelector('.item-subtotal').textContent = formatCurrency(item.priceInCents * item.quantity);
+                        fragment.appendChild(node);
                     });
                     groceryItemsView.appendChild(fragment);
                 }
                 calculateTotal();
-                saveState();
             };
 
-            const showModal = () => {
-                itemNameInput.value = '';
-                itemPriceInput.value = '';
-                nameError.style.display = 'none';
-                priceError.style.display = 'none';
-                modal.style.display = 'flex';
-                itemNameInput.focus();
-            };
-
-            const hideModal = () => modal.style.display = 'none';
-            
-            const validateAndAddItem = () => {
-                const name = itemNameInput.value.trim();
-                const price = parseFloat(itemPriceInput.value);
-                let isValid = true;
-
-                if (!name) {
-                    nameError.textContent = "Item name cannot be empty.";
-                    nameError.style.display = 'block';
-                    isValid = false;
+            const renderHistory = () => {
+                historySection.innerHTML = '<h2>Shopping History</h2>';
+                if (shoppingHistory.length === 0) {
+                    historySection.appendChild(emptyHistoryTemplate.content.cloneNode(true));
                 } else {
-                    nameError.style.display = 'none';
-                }
-
-                if (isNaN(price) || price <= 0) {
-                    priceError.textContent = "Please enter a valid, positive price.";
-                    priceError.style.display = 'block';
-                    isValid = false;
-                } else {
-                    priceError.style.display = 'none';
-                }
-
-                if (isValid) {
-                    groceryList.push({
-                        id: generateUUID(),
-                        name: name,
-                        priceInCents: Math.round(price * 100), // Store price in cents
-                        quantity: 1
+                    const fragment = document.createDocumentFragment();
+                    [...shoppingHistory].reverse().forEach(record => { // Show newest first
+                        const node = historyItemTemplate.content.cloneNode(true);
+                        const date = new Date(record.date).toLocaleString();
+                        node.querySelector('.history-date').textContent = date;
+                        node.querySelector('.history-items-list').textContent = record.items.map(i => `${i.name} (x${i.quantity})`).join(', ');
+                        node.querySelector('.history-total').textContent = `Total: ${formatCurrency(record.totalInCents)}`;
+                        fragment.appendChild(node);
                     });
-                    render();
-                    hideModal();
+                    historySection.appendChild(fragment);
+                    const clearBtn = document.createElement('button');
+                    clearBtn.textContent = 'Clear History';
+                    clearBtn.className = 'action-button clear-history-btn';
+                    clearBtn.onclick = clearHistory;
+                    historySection.appendChild(clearBtn);
                 }
             };
-
-            const handleListClick = (event) => {
-                const target = event.target;
-                const itemDiv = target.closest('.grocery-item');
-                if (!itemDiv) return;
-
-                const itemId = itemDiv.dataset.id;
-                const item = groceryList.find(i => i.id === itemId);
-                if (!item) return;
-
-                if (target.matches('.increase-qty')) {
-                    item.quantity++;
-                } else if (target.matches('.decrease-qty')) {
-                    if (item.quantity > 1) {
-                        item.quantity--;
-                    } else {
-                        groceryList = groceryList.filter(i => i.id !== itemId);
-                    }
-                } else if (target.matches('.delete-button')) {
-                    groceryList = groceryList.filter(i => i.id !== itemId);
+            
+            // --- UI Interaction Functions ---
+            const toggleHistoryView = (showHistory) => {
+                isHistoryView = showHistory;
+                groceryItemsView.style.display = isHistoryView ? 'none' : 'block';
+                historySection.style.display = isHistoryView ? 'block' : 'none';
+                totalCard.style.display = isHistoryView ? 'none' : 'flex';
+                footerActions.style.display = isHistoryView ? 'none' : 'flex';
+                
+                if (isHistoryView) {
+                    // Create a back button when in history view
+                    const backButton = document.createElement('button');
+                    backButton.textContent = 'Back to Cart';
+                    backButton.className = 'action-button';
+                    backButton.onclick = () => toggleHistoryView(false);
+                    historySection.appendChild(backButton);
                 }
                 render();
             };
 
-            // --- Event Listeners ---
-            addItemBtn.addEventListener('click', showModal);
-            modalCancelBtn.addEventListener('click', hideModal);
-            modalSaveBtn.addEventListener('click', validateAndAddItem);
+            const checkout = () => {
+                if (groceryList.length === 0) return;
+                const totalInCents = groceryList.reduce((sum, item) => sum + (item.priceInCents * item.quantity), 0);
+                shoppingHistory.push({
+                    date: new Date().toISOString(),
+                    items: [...groceryList],
+                    totalInCents: totalInCents
+                });
+                groceryList = [];
+                // TODO: Add Firebase logic here
+                // if (isUserLoggedIn()) { syncDataToFirestore(); }
+                render();
+            };
+
+            const clearHistory = () => {
+                if (confirm('Are you sure you want to clear all history?')) {
+                    shoppingHistory = [];
+                    // TODO: Add Firebase logic here
+                    // if (isUserLoggedIn()) { syncDataToFirestore(); }
+                    render();
+                }
+            };
+            
+            // --- Event Handlers ---
+            const handleListClick = (event) => {
+                const itemDiv = event.target.closest('.grocery-item');
+                if (!itemDiv) return;
+                const itemId = itemDiv.dataset.id;
+                const item = groceryList.find(i => i.id === itemId);
+                if (!item) return;
+
+                if (event.target.matches('.increase-qty')) item.quantity++;
+                else if (event.target.matches('.decrease-qty')) {
+                    if (item.quantity > 1) item.quantity--;
+                    else groceryList = groceryList.filter(i => i.id !== itemId);
+                } else if (event.target.matches('.delete-button')) {
+                    groceryList = groceryList.filter(i => i.id !== itemId);
+                }
+                render();
+            };
+            
+            // --- Modal Logic ---
+            const setupModal = (modal, openBtn, cancelBtn, saveBtn, saveFn) => {
+                const nameInput = modal.querySelector('#item-name-input');
+                const priceInput = modal.querySelector('#item-price-input');
+                
+                openBtn.addEventListener('click', () => modal.style.display = 'flex');
+                cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+                modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+                
+                saveBtn.addEventListener('click', () => {
+                     const name = nameInput.value.trim();
+                     const price = parseFloat(priceInput.value);
+                     if (name && !isNaN(price) && price > 0) {
+                         groceryList.push({ id: generateUUID(), name, priceInCents: Math.round(price * 100), quantity: 1 });
+                         render();
+                         modal.style.display = 'none';
+                     }
+                });
+            };
+            
+            // Initialize Add Item Modal
+            setupModal(
+                document.getElementById('add-item-modal'),
+                addItemBtn,
+                document.getElementById('modal-cancel-btn'),
+                document.getElementById('modal-save-btn')
+            );
+
+            // Initialize Sign In Modal
+            signInBtn.addEventListener('click', () => signInModal.style.display = 'flex');
+            document.getElementById('sign-in-cancel-btn').addEventListener('click', () => signInModal.style.display = 'none');
+            signInModal.addEventListener('click', e => { if (e.target === signInModal) signInModal.style.display = 'none'; });
+            document.getElementById('sign-in-submit-btn').addEventListener('click', () => {
+                // TODO: Add Firebase Authentication logic here
+                // const email = document.getElementById('email-input').value;
+                // const password = document.getElementById('password-input').value;
+                // firebase.auth().signInWithEmailAndPassword(email, password)...
+                alert('Sign-in functionality requires a backend service like Firebase.');
+                signInModal.style.display = 'none';
+            });
+            
+            // --- Global Event Listeners ---
             groceryItemsView.addEventListener('click', handleListClick);
-            modal.addEventListener('click', (event) => { if(event.target === modal) hideModal(); });
+            checkoutBtn.addEventListener('click', checkout);
+            viewHistoryBtn.addEventListener('click', () => toggleHistoryView(true));
 
             // --- Initial Load ---
             loadState();
