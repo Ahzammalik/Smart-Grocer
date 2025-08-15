@@ -1,3 +1,47 @@
+// In your ui/GroceryScreen.kt file...
+
+// Add these imports at the top
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.RemoveCircleOutline
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun GroceryScreen(viewModel: GroceryViewModel) {
+    val groceryList by viewModel.groceryList
+    val totalAmount by viewModel.totalAmount
+    val isLoading by viewModel.isLoading
+    val errorMessage by viewModel.errorMessage
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("SmartGrocer", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                // NEW: Action button to navigate to the Sign-In screen
+                actions = {
+                    IconButton(onClick = {
+                        // TODO: Implement navigation to SignInScreen.
+                        // With a proper navigation library, this would be something like:
+                        // navController.navigate("signin")
+                    }) {
+                        Icon(
+                            Icons.Default.AccountCircle,
+                            contentDescription = "Sign In",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            )
+        },
+        // ... (The rest of the Scaffold content remains the same as the previous response)
+    // ...
+}
+
+// ... (The rest of the GroceryScreen.kt file is unchanged)
 package com.adprofitx.smartgrocer
 
 import androidx.compose.animation.core.tween
