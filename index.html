@@ -6,7 +6,8 @@
     <title>SmartGrocer - Web</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <!-- Google AdSense Code -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4313544696010088"
+     crossorigin="anonymous"></script>
     <style>
         :root {
             --primary-color: #00796B; /* Teal */
@@ -25,10 +26,14 @@
         header h1 { margin: 0; font-size: 1.8em; font-weight: 700; letter-spacing: 1px; }
         .header-actions button { background: none; border: 1px solid rgba(255,255,255,0.5); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: background-color 0.2s; }
         .header-actions button:hover { background-color: rgba(255,255,255,0.2); }
-        .main-content { flex-grow: 1; padding: 20px; max-width: 800px; margin: 30px auto; display: flex; flex-direction: column; gap: 20px; }
+        .main-content { flex-grow: 1; padding: 20px; max-width: 1200px; margin: 30px auto; display: flex; flex-direction: column; gap: 20px; }
         #grocery-list-container { background-color: var(--card-background); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); overflow: hidden; display: flex; flex-direction: column; min-height: 400px; }
-        #grocery-items-view, #history-section { flex-grow: 1; overflow-y: auto; padding: 10px; }
-        #history-section { display: none; } /* Hidden by default */
+        #grocery-items-view, #history-section, #about-section, #blog-section, #privacy-section, #contact-section, #terms-section, #disclaimer-section { 
+            flex-grow: 1; overflow-y: auto; padding: 20px; 
+        }
+        #history-section, #about-section, #blog-section, #privacy-section, #contact-section, #terms-section, #disclaimer-section { 
+            display: none; /* Hidden by default */
+        }
         .empty-state { text-align: center; color: var(--light-text-color); padding: 80px 20px; font-size: 1.2em; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; }
         .empty-state svg { width: 80px; height: 80px; opacity: 0.6; }
         .grocery-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid var(--border-color); transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
@@ -62,29 +67,47 @@
         .history-total { font-weight: 700; text-align: right; }
         .clear-history-btn { background-color: var(--danger-color) !important; margin: 10px auto; display: block; }
         
-        /* AdSense Styles */
-        .ad-container {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-        .ad-container.horizontal {
-            height: 90px;
-        }
-        .ad-container.vertical {
-            height: 250px;
-        }
-        .ad-label {
-            text-align: center;
-            font-size: 0.8em;
-            color: var(--light-text-color);
-            margin-bottom: 5px;
-        }
+        /* New Section Styles */
+        .section-title { color: var(--primary-dark); border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-top: 0; }
+        .blog-post { background-color: var(--card-background); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 8px var(--shadow-color); }
+        .blog-post h3 { color: var(--primary-color); margin-top: 0; }
+        .blog-date { color: var(--light-text-color); font-size: 0.9em; }
+        .blog-excerpt { margin: 10px 0; }
+        .blog-read-more { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+        .blog-read-more:hover { text-decoration: underline; }
+        
+        .info-section { background-color: var(--card-background); border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 8px var(--shadow-color); }
+        .info-section h3 { color: var(--primary-color); margin-top: 0; }
+        
+        .contact-details { display: flex; flex-wrap: wrap; gap: 30px; }
+        .contact-info { flex: 1; min-width: 250px; }
+        .contact-form { flex: 2; min-width: 300px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-family: 'Poppins', sans-serif; }
+        .form-group textarea { min-height: 120px; }
+        .submit-btn { background-color: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .submit-btn:hover { background-color: var(--primary-dark); }
+        
+        /* Navigation Styles */
+        .main-nav { background-color: white; box-shadow: 0 2px 10px var(--shadow-color); padding: 10px 0; margin-bottom: 20px; }
+        .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .nav-menu { display: flex; list-style: none; padding: 0; margin: 0; flex-wrap: wrap; }
+        .nav-item { margin-right: 5px; }
+        .nav-link { display: block; padding: 8px 15px; color: var(--text-color); text-decoration: none; border-radius: 20px; transition: all 0.3s; }
+        .nav-link:hover, .nav-link.active { background-color: var(--primary-color); color: white; }
+        
+        /* Ad Container Styles */
+        .ad-container { margin: 25px 0; text-align: center; }
+        .ad-label { font-size: 0.8em; color: var(--light-text-color); margin-bottom: 5px; }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .ad-container.vertical {
-                display: none;
-            }
+            .main-content { padding: 15px; }
+            .footer-actions { flex-direction: column; }
+            .nav-menu { justify-content: center; }
+            .nav-item { margin-bottom: 5px; }
+            .contact-details { flex-direction: column; }
         }
     </style>
 </head>
@@ -96,28 +119,304 @@
         </div>
     </header>
 
+    <nav class="main-nav">
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#" class="nav-link active" data-section="grocery-items-view">Grocery List</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="about-section">About</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="blog-section">Blog</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="privacy-section">Privacy Policy</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="contact-section">Contact</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="terms-section">Terms</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="disclaimer-section">Disclaimer</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <main class="main-content">
         <!-- Top Ad Banner -->
-        <div class="ad-container horizontal">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4313544696010088"
-     crossorigin="anonymous"></script>
-<!-- Display Banner -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-4313544696010088"
-     data-ad-slot="2931939531"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        <div class="ad-container">
+            <div class="ad-label">Advertisement</div>
+            <!-- Display Banner -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4313544696010088"
+                 data-ad-slot="2931939531"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
         
         <div id="grocery-list-container">
             <div id="grocery-items-view">
-                </div>
+                <!-- Grocery items will be rendered here -->
+            </div>
+            
             <div id="history-section">
+                <!-- History items will be rendered here -->
+            </div>
+            
+            <div id="about-section">
+                <h2 class="section-title">About SmartGrocer</h2>
+                <div class="info-section">
+                    <h3>Our Mission</h3>
+                    <p>SmartGrocer is designed to make grocery shopping easier, more organized, and cost-effective. Our mission is to help you manage your shopping list, track your spending, and make smarter purchasing decisions.</p>
+                    
+                    <h3>How It Works</h3>
+                    <p>With SmartGrocer, you can:</p>
+                    <ul>
+                        <li>Create and manage your grocery lists</li>
+                        <li>Track prices and calculate your total spending</li>
+                        <li>Save your shopping history for future reference</li>
+                        <li>Access your lists from any device</li>
+                    </ul>
+                    
+                    <h3>Our Story</h3>
+                    <p>Founded in 2023, SmartGrocer was created by a team of developers who were frustrated with the inefficiencies of traditional grocery shopping. We wanted to create a tool that would help people save time and money while reducing food waste.</p>
                 </div>
+                
+                <!-- Middle Ad Banner -->
+                <div class="ad-container">
+                    <div class="ad-label">Advertisement</div>
+                    <!-- Display Banner -->
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-4313544696010088"
+                         data-ad-slot="2931939531"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+            
+            <div id="blog-section">
+                <h2 class="section-title">SmartGrocer Blog</h2>
+                
+                <div class="blog-post">
+                    <h3>10 Tips for Efficient Grocery Shopping</h3>
+                    <div class="blog-date">Published on: April 12, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>Learn how to make the most of your grocery shopping trips with these expert tips that will save you time and money.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>How to Reduce Food Waste in Your Home</h3>
+                    <div class="blog-date">Published on: March 28, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>Discover practical strategies to minimize food waste and make your grocery shopping more sustainable.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>Meal Planning for Busy Families</h3>
+                    <div class="blog-date">Published on: March 15, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>Simplify your weekly routine with effective meal planning strategies that work for even the busiest families.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>Organic vs. Conventional: What's Really Better?</h3>
+                    <div class="blog-date">Published on: February 22, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>We break down the differences between organic and conventional produce to help you make informed choices.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>Budget-Friendly Grocery Shopping Strategies</h3>
+                    <div class="blog-date">Published on: February 8, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>Learn how to stretch your grocery budget without sacrificing quality or nutrition.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>The Psychology of Impulse Buying</h3>
+                    <div class="blog-date">Published on: January 25, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>Understand why we make impulse purchases and how to avoid them during your grocery trips.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>Seasonal Produce Guide: What to Buy Each Month</h3>
+                    <div class="blog-date">Published on: January 12, 2023</div>
+                    <div class="blog-excerpt">
+                        <p>A month-by-month guide to help you choose the freshest, most flavorful produce all year round.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>Smart Storage Solutions for Your Kitchen</h3>
+                    <div class="blog-date">Published on: December 30, 2022</div>
+                    <div class="blog-excerpt">
+                        <p>Maximize your kitchen space and keep your groceries fresh longer with these innovative storage ideas.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>Understanding Food Labels: A Consumer's Guide</h3>
+                    <div class="blog-date">Published on: December 15, 2022</div>
+                    <div class="blog-excerpt">
+                        <p>Decode the mystery behind food packaging labels to make healthier choices for you and your family.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+                
+                <div class="blog-post">
+                    <h3>How Technology is Changing the Grocery Industry</h3>
+                    <div class="blog-date">Published on: December 1, 2022</div>
+                    <div class="blog-excerpt">
+                        <p>Explore the latest technological innovations that are transforming how we shop for groceries.</p>
+                    </div>
+                    <a href="#" class="blog-read-more">Read more →</a>
+                </div>
+            </div>
+            
+            <div id="privacy-section">
+                <h2 class="section-title">Privacy Policy</h2>
+                <div class="info-section">
+                    <h3>Information We Collect</h3>
+                    <p>We collect information you provide directly to us when you use SmartGrocer, including your grocery lists, shopping history, and account information if you choose to create one.</p>
+                    
+                    <h3>How We Use Your Information</h3>
+                    <p>We use the information we collect to:</p>
+                    <ul>
+                        <li>Provide, maintain, and improve our services</li>
+                        <li>Personalize your experience</li>
+                        <li>Analyze how you use our application</li>
+                        <li>Develop new products and features</li>
+                    </ul>
+                    
+                    <h3>Information Sharing</h3>
+                    <p>We do not sell your personal information to third parties. We may share aggregated, non-personally identifiable information with partners for analytics purposes.</p>
+                    
+                    <h3>Data Security</h3>
+                    <p>We implement appropriate security measures to protect your information from unauthorized access, alteration, or destruction.</p>
+                    
+                    <h3>Changes to This Policy</h3>
+                    <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
+                    
+                    <h3>Contact Us</h3>
+                    <p>If you have any questions about this Privacy Policy, please contact us at privacy@smartgrocer.com.</p>
+                    
+                    <p>Last updated: April 15, 2023</p>
+                </div>
+            </div>
+            
+            <div id="contact-section">
+                <h2 class="section-title">Contact Us</h2>
+                <div class="contact-details">
+                    <div class="contact-info">
+                        <div class="info-section">
+                            <h3>Adprofitx Details</h3>
+                            <p><strong>Address:</strong> 123 Tech Park Drive, Silicon Valley, CA 94301</p>
+                            <p><strong>Email:</strong> info@adprofitx.com</p>
+                            <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                            <p><strong>Business Hours:</strong> Monday-Friday, 9:00 AM - 6:00 PM PST</p>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h3>Get In Touch</h3>
+                            <p>Have questions about SmartGrocer or need support? Our team is here to help you with any inquiries you may have.</p>
+                            <p>For partnership opportunities, please email partnerships@adprofitx.com</p>
+                            <p>For press inquiries, please email press@adprofitx.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form">
+                        <div class="info-section">
+                            <h3>Send Us a Message</h3>
+                            <form id="contact-form">
+                                <div class="form-group">
+                                    <label for="name">Your Name</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="subject">Subject</label>
+                                    <input type="text" id="subject" name="subject" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message">Message</label>
+                                    <textarea id="message" name="message" required></textarea>
+                                </div>
+                                <button type="submit" class="submit-btn">Send Message</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="terms-section">
+                <h2 class="section-title">Terms and Conditions</h2>
+                <div class="info-section">
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By accessing and using SmartGrocer, you accept and agree to be bound by the terms and conditions of this agreement.</p>
+                    
+                    <h3>2. Use License</h3>
+                    <p>Permission is granted to temporarily use SmartGrocer for personal, non-commercial purposes only.</p>
+                    
+                    <h3>3. User Account</h3>
+                    <p>If you create an account with SmartGrocer, you are responsible for maintaining the security of your account and for all activities that occur under the account.</p>
+                    
+                    <h3>4. User Content</h3>
+                    <p>You retain all rights to any content you submit, post or display on or through SmartGrocer.</p>
+                    
+                    <h3>5. Limitations</h3>
+                    <p>In no event shall SmartGrocer or its suppliers be liable for any damages arising out of the use or inability to use the service.</p>
+                    
+                    <h3>6. Changes to Terms</h3>
+                    <p>SmartGrocer reserves the right to modify these terms at any time. We will provide notice of significant changes to the terms.</p>
+                    
+                    <h3>7. Governing Law</h3>
+                    <p>These terms and conditions are governed by and construed in accordance with the laws of the State of California.</p>
+                    
+                    <p>Last updated: April 15, 2023</p>
+                </div>
+            </div>
+            
+            <div id="disclaimer-section">
+                <h2 class="section-title">Disclaimer</h2>
+                <div class="info-section">
+                    <h3>No Warranty</h3>
+                    <p>SmartGrocer is provided "as is" without any warranties, expressed or implied. SmartGrocer makes no representations or warranties regarding the accuracy or completeness of the content.</p>
+                    
+                    <h3>Limitation of Liability</h3>
+                    <p>In no event shall SmartGrocer be liable for any special, direct, indirect, consequential, or incidental damages arising out of or in connection with your use of the service.</p>
+                    
+                    <h3>External Links</h3>
+                    <p>SmartGrocer may contain links to external websites that are not provided or maintained by us. We do not guarantee the accuracy or relevance of any information on these external websites.</p>
+                    
+                    <h3>Price Accuracy</h3>
+                    <p>While we strive to provide accurate price information, we cannot guarantee that all prices are correct. Actual prices may vary based on location, store, and time of purchase.</p>
+                    
+                    <h3>Nutritional Information</h3>
+                    <p>Any nutritional information provided is for informational purposes only and should not be considered medical advice. Always consult a healthcare professional for dietary guidance.</p>
+                    
+                    <h3>Advertisements</h3>
+                    <p>SmartGrocer displays advertisements through Google AdSense. We are not responsible for the content of these advertisements or the products/services offered.</p>
+                    
+                    <p>Last updated: April 15, 2023</p>
+                </div>
+            </div>
         </div>
         
         <div class="total-card" id="total-card">
@@ -132,19 +431,18 @@
         </div>
         
         <!-- Bottom Ad Banner -->
-        <div class="ad-container horizontal">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4313544696010088"
-     crossorigin="anonymous"></script>
-<!-- Display Banner -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-4313544696010088"
-     data-ad-slot="2931939531"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script> 
+        <div class="ad-container">
+            <div class="ad-label">Advertisement</div>
+            <!-- Display Banner -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4313544696010088"
+                 data-ad-slot="2931939531"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
     </main>
     
@@ -167,7 +465,15 @@
             const viewHistoryBtn = document.getElementById('view-history-btn');
             
             const historySection = document.getElementById('history-section');
+            const aboutSection = document.getElementById('about-section');
+            const blogSection = document.getElementById('blog-section');
+            const privacySection = document.getElementById('privacy-section');
+            const contactSection = document.getElementById('contact-section');
+            const termsSection = document.getElementById('terms-section');
+            const disclaimerSection = document.getElementById('disclaimer-section');
+            
             const signInBtn = document.getElementById('sign-in-btn');
+            const navLinks = document.querySelectorAll('.nav-link');
 
             // --- Templates ---
             const itemTemplate = document.getElementById('grocery-item-template');
@@ -183,6 +489,7 @@
             let groceryList = [];
             let shoppingHistory = [];
             let isHistoryView = false;
+            let currentSection = 'grocery-items-view';
             
             // --- Utility Functions ---
             const generateUUID = () => ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
@@ -261,28 +568,60 @@
                 }
             };
             
-            // --- UI Interaction Functions ---
-            // UPDATED: Simpler and more reliable toggle function
-            const toggleHistoryView = () => {
-                isHistoryView = !isHistoryView; // Toggle the state between true and false
-
-                // Show/hide main sections based on the state
-                groceryItemsView.style.display = isHistoryView ? 'none' : 'block';
-                historySection.style.display = isHistoryView ? 'block' : 'none';
-                totalCard.style.display = isHistoryView ? 'none' : 'flex';
-
-                // Show/hide specific footer buttons
-                checkoutBtn.style.display = isHistoryView ? 'none' : 'flex';
-                addItemBtn.style.display = isHistoryView ? 'none' : 'flex';
-
-                // Change the "History" button text to "Back to Cart" and vice-versa
-                if (isHistoryView) {
-                    viewHistoryBtn.textContent = 'Back to Cart';
+            // --- Navigation Functions ---
+            const showSection = (sectionId) => {
+                // Hide all sections
+                document.querySelectorAll('#grocery-list-container > div').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show the selected section
+                document.getElementById(sectionId).style.display = 'block';
+                
+                // Special handling for grocery view
+                if (sectionId === 'grocery-items-view') {
+                    totalCard.style.display = 'flex';
+                    checkoutBtn.style.display = 'flex';
+                    addItemBtn.style.display = 'flex';
+                    viewHistoryBtn.style.display = 'flex';
+                    isHistoryView = false;
+                    renderGroceryList();
+                } else if (sectionId === 'history-section') {
+                    totalCard.style.display = 'none';
+                    checkoutBtn.style.display = 'none';
+                    addItemBtn.style.display = 'none';
+                    viewHistoryBtn.style.display = 'flex';
+                    isHistoryView = true;
+                    renderHistory();
                 } else {
-                    viewHistoryBtn.textContent = 'History';
+                    // For all other sections
+                    totalCard.style.display = 'none';
+                    checkoutBtn.style.display = 'none';
+                    addItemBtn.style.display = 'none';
+                    viewHistoryBtn.style.display = 'none';
                 }
                 
-                render(); // Re-render the correct view
+                // Update navigation
+                navLinks.forEach(link => {
+                    if (link.dataset.section === sectionId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                
+                currentSection = sectionId;
+            };
+            
+            // --- UI Interaction Functions ---
+            const toggleHistoryView = () => {
+                if (currentSection === 'history-section') {
+                    showSection('grocery-items-view');
+                    viewHistoryBtn.textContent = 'History';
+                } else {
+                    showSection('history-section');
+                    viewHistoryBtn.textContent = 'Back to Cart';
+                }
             };
 
             const checkout = () => {
@@ -300,11 +639,11 @@
             const clearHistory = () => {
                 if (confirm('Are you sure you want to clear all history?')) {
                     shoppingHistory = [];
-                    render();
+                    renderHistory();
                 }
             };
             
-            // --- Event Handlers (Unchanged) ---
+            // --- Event Handlers ---
             const handleListClick = (event) => {
                 const itemDiv = event.target.closest('.grocery-item');
                 if (!itemDiv) return;
@@ -334,24 +673,44 @@
                          groceryList.push({ id: generateUUID(), name, priceInCents: Math.round(price * 100), quantity: 1 });
                          render();
                          modal.style.display = 'none';
+                         nameInput.value = '';
+                         priceInput.value = '';
                      }
                 });
             };
             
+            // --- Navigation Event Listeners ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSection(link.dataset.section);
+                });
+            });
+            
+            // --- Initialize Modals ---
             setupModal(addItemModal, addItemBtn, document.getElementById('modal-cancel-btn'), document.getElementById('modal-save-btn'));
             signInBtn.addEventListener('click', () => signInModal.style.display = 'flex');
             document.getElementById('sign-in-cancel-btn').addEventListener('click', () => signInModal.style.display = 'none');
             signInModal.addEventListener('click', e => { if (e.target === signInModal) signInModal.style.display = 'none'; });
             document.getElementById('sign-in-submit-btn').addEventListener('click', () => { alert('Sign-in functionality requires a backend service like Firebase.'); signInModal.style.display = 'none'; });
             
+            // Contact form submission
+            document.getElementById('contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Thank you for your message! We will get back to you soon.');
+                e.target.reset();
+            });
+            
             // --- Global Event Listeners ---
             groceryItemsView.addEventListener('click', handleListClick);
             checkoutBtn.addEventListener('click', checkout);
-            // UPDATED: The history button now calls the single toggle function
             viewHistoryBtn.addEventListener('click', toggleHistoryView);
 
             // --- Initial Load ---
             loadState();
+            
+            // Initialize AdSense
+            (adsbygoogle = window.adsbygoogle || []).push({});
         });
     </script>
 </body>
