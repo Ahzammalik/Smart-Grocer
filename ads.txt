@@ -1,3 +1,4 @@
+
 # Google Ads.txt file for AdProfitX Compressor
 # This file should be placed in the root directory of your domain
 # Replace the placeholder values with your actual Google AdSense information
